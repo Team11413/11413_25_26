@@ -15,8 +15,12 @@ public class SampleOp extends OpMode {
 
     CommonRobot comBot;
 
-    double targetspeed = 0.5;
+    double targetspeed = 0.6;
     boolean shooterenabled = false;
+    double openTime= .3;
+    double closedTime=0;
+    boolean isOpen=true;
+    boolean ButtersMode=true;
 
     @Override
     public void init() {
@@ -27,6 +31,7 @@ public class SampleOp extends OpMode {
     @Override
     public void loop() {
         telemetry.addLine("Press A to reset Yaw");
+        double currentTime = getRuntime();
 
         // If you press the A button, then you reset the Yaw to be zero from the way
         // the robot is currently pointing
@@ -50,15 +55,21 @@ public class SampleOp extends OpMode {
         }
 
         if (gamepad1.xWasPressed()) {
-            comBot.ballRelease.setPosition(0);
-        }
-
-        if (gamepad1.bWasPressed()) {
             comBot.ballRelease.setPosition(1);
+            isOpen=true;
+            closedTime = currentTime+openTime;
+        }
+
+        if (gamepad1.bWasPressed()||(isOpen&&closedTime<=currentTime)) {
+            comBot.ballRelease.setPosition(.7);
+            isOpen=false;
+        }
+        if (gamepad1.dpad_up){
+            ButtersMode=!ButtersMode;
         }
 
 
-        double setspeed=.4;
+        double setspeed=0;
         if(shooterenabled){
             setspeed=targetspeed;
         }
@@ -67,7 +78,12 @@ public class SampleOp extends OpMode {
 
         comBot.leftShooter.setPower(setspeed);
         comBot.rightShooter.setPower(setspeed);
-        comBot.driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+
+        if(ButtersMode){
+            comBot.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+        }else{
+            comBot.driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+        }
 
         for (int i = 0; i < 4; i++){
             telemetry.addLine("Motor " + i + " Encoder Count: " + comBot.DriveMotors[i].getCurrentPosition());
