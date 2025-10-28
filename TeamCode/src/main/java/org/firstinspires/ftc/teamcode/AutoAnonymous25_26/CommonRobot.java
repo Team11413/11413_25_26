@@ -21,6 +21,8 @@ public class CommonRobot {
     public Servo ballRelease;
     public IMU imu;
 
+    public double initialHeading = 0;
+
     Telemetry telemetry;
     int FL=0, FR=1, BL=2, BR=3;
 
@@ -29,6 +31,7 @@ public class CommonRobot {
         if (INSTANCE == null) {
             INSTANCE = new CommonRobot(hardwareMap, telemetry);
         }
+        INSTANCE.init();
      return INSTANCE;
     }
     public CommonRobot(HardwareMap hardwareMap, Telemetry tel) {
@@ -41,24 +44,13 @@ public class CommonRobot {
 
         leftShooter = hardwareMap.get(DcMotor.class, "leftShooter");
         rightShooter = hardwareMap.get(DcMotor.class, "rightShooter");
-        leftShooter.setDirection(DcMotor.Direction.REVERSE);
-        rightShooter.setDirection(DcMotor.Direction.REVERSE);
+
 
         ballRelease = hardwareMap.get(Servo.class, "ballRelease");
 
-        // We set the left motors in reverse which is needed for drive trains where the left
-        // motors are opposite to the right ones.
-        DriveMotors[FL].setDirection(DcMotor.Direction.REVERSE);
-        DriveMotors[BL].setDirection(DcMotor.Direction.REVERSE);
-
-        // This uses RUN_USING_ENCODER to be more accurate.   If you don't have the encoder
-        // wires, you should remove these
-        for(int i = 0; i <4; i++){
-            DriveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
         imu = hardwareMap.get(IMU.class, "imu");
         // This needs to be changed to match the orientation on your robot
+
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
                 RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
@@ -67,6 +59,21 @@ public class CommonRobot {
         RevHubOrientationOnRobot orientationOnRobot = new
                 RevHubOrientationOnRobot(logoDirection, usbDirection);
         imu.initialize(new IMU.Parameters(orientationOnRobot));
+    }
+
+    public void init(){
+        // We set the left motors in reverse which is needed for drive trains where the left
+        // motors are opposite to the right ones.
+        DriveMotors[FL].setDirection(DcMotor.Direction.REVERSE);
+        DriveMotors[BL].setDirection(DcMotor.Direction.REVERSE);
+        leftShooter.setDirection(DcMotor.Direction.REVERSE);
+        rightShooter.setDirection(DcMotor.Direction.REVERSE);
+
+        // This uses RUN_USING_ENCODER to be more accurate.   If you don't have the encoder
+        // wires, you should remove these
+        for(int i = 0; i <4; i++){
+            DriveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
     }
 
     public void driveFieldRelative(double forward, double right, double rotate) {

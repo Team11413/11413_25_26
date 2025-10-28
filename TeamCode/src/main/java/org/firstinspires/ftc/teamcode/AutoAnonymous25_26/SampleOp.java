@@ -58,7 +58,7 @@ public class SampleOp extends OpMode {
         }
 
 
-        double setspeed=0;
+        double setspeed=.4;
         if(shooterenabled){
             setspeed=targetspeed;
         }
