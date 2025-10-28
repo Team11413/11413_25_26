@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.tel
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -40,6 +41,8 @@ public class CommonRobot {
 
         leftShooter = hardwareMap.get(DcMotor.class, "leftShooter");
         rightShooter = hardwareMap.get(DcMotor.class, "rightShooter");
+        leftShooter.setDirection(DcMotor.Direction.REVERSE);
+        rightShooter.setDirection(DcMotor.Direction.REVERSE);
 
         ballRelease = hardwareMap.get(Servo.class, "ballRelease");
 
@@ -65,6 +68,7 @@ public class CommonRobot {
                 RevHubOrientationOnRobot(logoDirection, usbDirection);
         imu.initialize(new IMU.Parameters(orientationOnRobot));
     }
+
     public void driveFieldRelative(double forward, double right, double rotate) {
         // First, convert direction being asked to drive to polar coordinates
 //        double theta = Math.atan2(forward, right);
