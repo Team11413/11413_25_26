@@ -27,9 +27,6 @@ public class SampleOp extends OpMode {
     @Override
     public void loop() {
         telemetry.addLine("Press A to reset Yaw");
-//        telemetry.addLine("Hold left bumper to drive in robot relative");
-        telemetry.addLine("The left joystick sets the robot direction");
-        telemetry.addLine("Moving the right joystick left and right turns the robot");
 
         // If you press the A button, then you reset the Yaw to be zero from the way
         // the robot is currently pointing
@@ -45,6 +42,12 @@ public class SampleOp extends OpMode {
                 targetspeed=0;
             }
         }
+        if (gamepad1.rightBumperWasPressed()){
+            targetspeed+=.05;
+            if (targetspeed>1){
+                targetspeed=1;
+            }
+        }
 
         if (gamepad1.xWasPressed()) {
             comBot.ballRelease.setPosition(0);
@@ -54,30 +57,16 @@ public class SampleOp extends OpMode {
             comBot.ballRelease.setPosition(1);
         }
 
-        if (gamepad1.rightBumperWasPressed()){
-            targetspeed+=.05;
-            if (targetspeed>1){
-                targetspeed=1;
-            }
-        }
-
 
         double setspeed=0;
         if(shooterenabled){
             setspeed=targetspeed;
-        } else {
-            setspeed = 0.5;
         }
+
+        telemetry.addLine("Shooter Speed: "+setspeed);
 
         comBot.leftShooter.setPower(setspeed);
         comBot.rightShooter.setPower(setspeed);
-        // If you press the left bumper, you get a drive from the point of view of the robot
-        // (much like driving an RC vehicle)
-//        if (gamepad1.left_bumper) {
-//            drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
-//        } else {
-//            driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
-//        }
         comBot.driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
         for (int i = 0; i < 4; i++){
