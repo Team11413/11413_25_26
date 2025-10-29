@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.AutoAnonymous25_26;
 
+import com.acmerobotics.roadrunner.MecanumKinematics;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -8,6 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
+import dev.nextftc.hardware.driving.MecanumDriverControlled;
 
 @TeleOp(name = "Robot: Field Relative Mecanum Drive", group = "Robot")
 public class SampleOp extends OpMode {
@@ -18,9 +21,11 @@ public class SampleOp extends OpMode {
 
     // This declares the IMU needed to get the current direction the robot is facing
     IMU imu;
+    MecanumKinematics kinematics = new MecanumKinematics();
 
     @Override
     public void init() {
+        MecanumDriverControlled()
         frontLeftDrive = hardwareMap.get(DcMotor.class, "frontleft");
         frontRightDrive = hardwareMap.get(DcMotor.class, "frontright");
         backLeftDrive = hardwareMap.get(DcMotor.class, "backleft");
