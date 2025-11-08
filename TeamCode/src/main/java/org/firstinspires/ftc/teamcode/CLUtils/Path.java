@@ -1,24 +1,58 @@
 package org.firstinspires.ftc.teamcode.CLUtils;
 
-import com.acmerobotics.roadrunner.Pose2d;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
-import java.util.ArrayList;
 
 public class Path {
 
     public Pose2D[] points;
+    public double duration, elapsedTime=0;
     public double[] lineLengths;
     public double totalLength=0;
 
-    public static Path GeneratePath(Pose2D startPos, Pose2D endPos){
+    public static Path NonGeneratedPath(Pose2D...Points){
         Path p = new Path();
-        Pose2D first = extendLine(endPos, startPos, 1);
-        Pose2D zeroth = extendLine(startPos,first,1);
-        p.points=new Pose2D[]{zeroth,first,startPos,endPos};
+        Pose2D first = extendLine(Points[1], Points[0], 1);
+        Pose2D zeroth = extendLine(Points[0],first,1);
+        p.points=new Pose2D[Points.length+2];
+        p.points[0]=zeroth;
+        p.points[1]=first;
+        System.arraycopy(Points, 2, p.points, 0, Points.length);
+        return p;
+    }
+
+    public static Path GeneratePathFromCurrent(double duration, Pose2D current, Path original){
+        Path p = new Path();
+        p.duration=duration;
+        Pose2D first = extendLine(original.points[2], current, 1);
+        Pose2D zeroth = extendLine(current,first,1);
+        p.points=new Pose2D[original.points.length+1];
+        p.points[0]=zeroth;
+        p.points[1]=first;
+        p.points[2]=current;
+        System.arraycopy(original.points, 2, p.points, 3, original.points.length - 2);
+        p.FillLineLengths();
+        return p;
+    }
+
+    /*
+    There should be at least 2 targets to designate a start and end point.
+     */
+    public static Path GeneratePath(double duration, Pose2D... targets){
+        if(targets.length<2){
+            return null;
+        }
+        Path p = new Path();
+        p.duration=duration;
+        Pose2D first = extendLine(targets[1], targets[0], 1);
+        Pose2D zeroth = extendLine(targets[0],first,1);
+        p.points=new Pose2D[targets.length+2];
+        p.points[0]=zeroth;
+        p.points[1]=first;
+        System.arraycopy(targets,0,p.points,2,targets.length);
         p.FillLineLengths();
         return p;
     }
