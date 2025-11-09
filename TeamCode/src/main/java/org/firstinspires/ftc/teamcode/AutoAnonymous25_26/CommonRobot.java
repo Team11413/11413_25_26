@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.AutoAnonymous25_26;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -20,6 +21,8 @@ public class CommonRobot {
     public DcMotor rightShooter;
     public Servo ballRelease;
     public IMU imu;
+
+    public Limelight3A ll;
 
     public double initialHeading = 0;
 
@@ -49,6 +52,8 @@ public class CommonRobot {
         ballRelease = hardwareMap.get(Servo.class, "ballRelease");
 
         imu = hardwareMap.get(IMU.class, "imu");
+
+//        ll=hardwareMap.get(Limelight3A.class, "limelight");
         // This needs to be changed to match the orientation on your robot
 
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
@@ -64,18 +69,22 @@ public class CommonRobot {
     public void init(){
         // We set the left motors in reverse which is needed for drive trains where the left
         // motors are opposite to the right ones.
-        DriveMotors[FL].setDirection(DcMotor.Direction.REVERSE);
-        DriveMotors[BL].setDirection(DcMotor.Direction.REVERSE);
-        leftShooter.setDirection(DcMotor.Direction.REVERSE);
-        rightShooter.setDirection(DcMotor.Direction.REVERSE);
+        DriveMotors[FR].setDirection(DcMotor.Direction.REVERSE);
+        DriveMotors[BR].setDirection(DcMotor.Direction.REVERSE);
+//        leftShooter.setDirection(DcMotor.Direction.REVERSE);
+//        rightShooter.setDirection(DcMotor.Direction.REVERSE);
 
         // This uses RUN_USING_ENCODER to be more accurate.   If you don't have the encoder
         // wires, you should remove these
         for(int i = 0; i <4; i++){
-            DriveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            DriveMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
     }
 
+    public void SetShootSpeed(double power){
+        leftShooter.setPower(power);
+        rightShooter.setPower(power);
+    }
     public void driveFieldRelative(double forward, double right, double rotate) {
         // First, convert direction being asked to drive to polar coordinates
 //        double theta = Math.atan2(forward, right);

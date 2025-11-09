@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.AutoAnonymous25_26;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -20,7 +21,7 @@ public class SampleOp extends OpMode {
     double openTime= .3;
     double closedTime=0;
     boolean isOpen=true;
-    boolean ButtersMode=true;
+    public boolean ButtersMode=true;
 
     @Override
     public void init() {
@@ -58,11 +59,13 @@ public class SampleOp extends OpMode {
             comBot.ballRelease.setPosition(1);
             isOpen=true;
             closedTime = currentTime+openTime;
+            targetspeed+=.08;
         }
 
         if (gamepad1.bWasPressed()||(isOpen&&closedTime<=currentTime)) {
             comBot.ballRelease.setPosition(.7);
             isOpen=false;
+            targetspeed-=.08;
         }
         if (gamepad1.dpad_up){
             ButtersMode=!ButtersMode;
@@ -76,13 +79,16 @@ public class SampleOp extends OpMode {
 
         telemetry.addLine("Shooter Speed: "+setspeed);
 
-        comBot.leftShooter.setPower(setspeed);
-        comBot.rightShooter.setPower(setspeed);
+        comBot.SetShootSpeed(setspeed);
+
+        double forward = -(gamepad1.left_stick_y*Math.abs(gamepad1.left_stick_y));
+        double strafe = (gamepad1.left_stick_x*Math.abs(gamepad1.left_stick_x));
+        double rotate= (gamepad1.right_stick_x*Math.abs(gamepad1.right_stick_x));
 
         if(ButtersMode){
-            comBot.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+            comBot.drive(forward, strafe, rotate);
         }else{
-            comBot.driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+            comBot.driveFieldRelative(forward, strafe, rotate);
         }
 
         for (int i = 0; i < 4; i++){

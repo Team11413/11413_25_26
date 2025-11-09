@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name="Blue-Audience-Shoots", group="Robot")
-public class AutoOP1 extends LinearOpMode {
+@Autonomous(name="Red-Audience-Shoots", group="Robot")
+public class AutoOP3 extends LinearOpMode {
     static final double     COUNTS_PER_MOTOR_REV    = 537.7 ;   // eg: GoBILDA 312 RPM Yellow Jacket
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
     static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
@@ -26,13 +26,13 @@ public class AutoOP1 extends LinearOpMode {
 
         // begin commands
         comBot.SetShootSpeed(.5);
-        timeFieldDrive(0.7,0,-.08,2.0);
+        timeFieldDrive(0.7,0,.08,2.0);
         shoot();
         sleep(200);
         shoot();
         sleep(200);
         shoot();
-        timeFieldDrive(-0.7,0,0,.5);
+        timeFieldDrive(-0.7,0,0,0.5);
         while(opModeIsActive()){
 
         }
@@ -66,9 +66,9 @@ public class AutoOP1 extends LinearOpMode {
     }
 
     private void timeFieldDrive(double forward,
-                           double right,
-                           double rotate,
-                           double time) {
+                                double right,
+                                double rotate,
+                                double time) {
         if (opModeIsActive()) {
             time+=getRuntime();
             comBot.driveFieldRelative(forward, right, rotate);
