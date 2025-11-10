@@ -7,6 +7,11 @@ public class AutoPaths {
 
      */
     public static Path[] Paths = new Path[]{
+            //TestForward
+            Path.NonGeneratedPath(
+                    Utils.PoseInDeg(1,0,0),
+                    Utils.PoseInDeg(10,0,0)
+            ),
             //BlueAudience
             Path.GeneratePath(5,
                     Utils.PoseInDeg(63,12,180),
@@ -21,6 +26,7 @@ public class AutoPaths {
     };
 
     public enum PATH {
+        TestForward,
         BlueAudience,
         BlueRow1,       //intended for use with GenerateFromCurrent
     }

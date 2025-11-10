@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.CLUtils;
 
+import android.util.Log;
+
 public class ChassisControl {
     public double forward, strafe, rotate;
     //inches/sec, inches/sec, radians/sec
@@ -15,9 +17,9 @@ public class ChassisControl {
     }
 
     public void updateInputFromDistance(double f, double s, double r, double loopTime){
-        forward= f/(forwardMaxSpeed*loopTime);
-        strafe= s/(strafeMaxSpeed*loopTime);
-        rotate= r/(rotationMaxSpeed*loopTime);
+        forward= f*1.076/(forwardMaxSpeed*loopTime);
+        strafe= s*1.076/(strafeMaxSpeed*loopTime);
+        rotate= r*1.076/(rotationMaxSpeed*loopTime);
         //cap to unit vector
         double scalar = Math.sqrt(forward*forward+strafe*strafe);
         if(scalar>1){
@@ -25,5 +27,6 @@ public class ChassisControl {
             strafe=strafe/scalar;
         }
         rotate=Math.min(r,1);
+        Log.d("PathTesting","ChassisControl - F="+String.format("%.4f",forward)+"| S="+String.format("%.4f",strafe)+"| R="+String.format("%.4g",rotate));
     }
 }

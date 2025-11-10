@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.CLUtils;
 
 
+import android.util.Log;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -15,25 +17,25 @@ public class Path {
 
     public static Path NonGeneratedPath(Pose2D...Points){
         Path p = new Path();
-        Pose2D first = extendLine(Points[1], Points[0], 1);
-        Pose2D zeroth = extendLine(Points[0],first,1);
+        Pose2D zeroth = extendLine(Points[1], Points[0], 1);
+        Pose2D last = extendLine(Points[Points.length-2],Points[Points.length-1],1);
         p.points=new Pose2D[Points.length+2];
         p.points[0]=zeroth;
-        p.points[1]=first;
-        System.arraycopy(Points, 2, p.points, 0, Points.length);
+        p.points[Points.length+1]=last;
+        System.arraycopy(Points, 0, p.points, 1, Points.length);
         return p;
     }
 
     public static Path GeneratePathFromCurrent(double duration, Pose2D current, Path original){
         Path p = new Path();
         p.duration=duration;
-        Pose2D first = extendLine(original.points[2], current, 1);
-        Pose2D zeroth = extendLine(current,first,1);
+        int oc= original.points.length;
+        Pose2D zeroth = extendLine(original.points[2], current, 1);
+        Pose2D last = extendLine(original.points[oc-2],original.points[oc-1],1);
         p.points=new Pose2D[original.points.length+1];
         p.points[0]=zeroth;
-        p.points[1]=first;
-        p.points[2]=current;
-        System.arraycopy(original.points, 2, p.points, 3, original.points.length - 2);
+        p.points[1]=current;
+        System.arraycopy(original.points, 1, p.points, 2, original.points.length - 2);
         p.FillLineLengths();
         return p;
     }
@@ -47,12 +49,12 @@ public class Path {
         }
         Path p = new Path();
         p.duration=duration;
-        Pose2D first = extendLine(targets[1], targets[0], 1);
-        Pose2D zeroth = extendLine(targets[0],first,1);
+        Pose2D zeroth = extendLine(targets[1], targets[0], 1);
+        Pose2D last = extendLine(targets[targets.length-2],targets[targets.length-1],1);
         p.points=new Pose2D[targets.length+2];
         p.points[0]=zeroth;
-        p.points[1]=first;
-        System.arraycopy(targets,0,p.points,2,targets.length);
+        p.points[targets.length+1]=last;
+        System.arraycopy(targets,0,p.points,1,targets.length);
         p.FillLineLengths();
         return p;
     }
@@ -64,6 +66,7 @@ public class Path {
         if(t>=1){
             return points[points.length-1];
         }
+        double ot=t;
         double desiredLength= totalLength*t;
         int segment=0;
         while(lineLengths[segment]<desiredLength){
@@ -71,6 +74,7 @@ public class Path {
             segment++;
         }
         t=desiredLength/lineLengths[segment];
+        Log.d("PathTesting","total progress: "+String.format("%.4f",ot)+" chooses Line Segment: "+segment+" with partial progress: "+t);
         return CubicHermiteInterp(segment,t);
     }
 
@@ -111,7 +115,7 @@ public class Path {
     }
 
     /*
-    Returns the point represented by t% along the path from p2 to p3
+    Returns the point represented by t% along the path from p1 to p2
      */
     private Pose2D CubicHermiteInterp(int start, double t){
         double[] vals = new double[12];
@@ -126,9 +130,9 @@ public class Path {
             double B = vals[i+3];
             double C = vals[i+6];
             double D = vals[i+9];
-            double a = -A/2+(3*B)/2-(3*C)/2+D/2;
-            double b = A-(5*B)/2+2*C-D/2;
-            double c = -A/2+C/2;
+            double a = (-A+(3*B)-(3*C)+D)/2.0;
+            double b = A-(5*B)/2.0+2*C-D/2.0;
+            double c = (-A+C)/2.0;
             out[i]=a*t*t*t+b*t*t+c*t+B;
         }
         return new Pose2D(DistanceUnit.INCH,out[0],out[1],AngleUnit.DEGREES,out[2]);

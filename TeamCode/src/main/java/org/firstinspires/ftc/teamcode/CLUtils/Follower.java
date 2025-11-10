@@ -6,15 +6,20 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 public class Follower {
 
-    ILocalizer ILocalizer;
+    ILocalizer localizer;
     Path path;
-    Pose2D currentLocation;
+    public Pose2D currentLocation;
     double loopTime=0;
     ChassisControl cc;
-    Pose2D targetPose;
+    public Pose2D targetPose = Utils.PoseInDeg(0,0,0);
 
     public Follower(ChassisControl cc){
         this.cc=cc;
+    }
+
+    public void newPath(Path p){
+        path=p;
+        loopTime=0;
     }
 
     public void update(double lastLoopTime){
@@ -24,20 +29,24 @@ public class Follower {
         updateControl();
     }
 
+    public boolean isComplete(){
+        return path.elapsedTime>=path.duration;
+    }
+
     public double estimateMinPathTime(){
-        double timeStepIntegral=2/3.0;
+        double timeStepIntegral=1.8/3.0;
         double avgFSpeed= cc.forwardMaxSpeed*timeStepIntegral;
         double avgSSpeed= cc.strafeMaxSpeed*timeStepIntegral;
-        return 2*path.totalLength/(avgFSpeed*avgSSpeed);
+        return 2*path.totalLength/(avgFSpeed+avgSSpeed);
     }
 
     private void updatePosition(){
-        if(ILocalizer ==null){
+        if(localizer ==null){
             currentLocation=targetPose;
             return;
         }
-        ILocalizer.update();
-        currentLocation= ILocalizer.getPose();
+        localizer.update();
+        currentLocation= localizer.getPose();
     }
 
     private void updateControl(){

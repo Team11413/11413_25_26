@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.AutoAnonymous25_26;
 
+import android.util.Log;
+
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -26,12 +28,14 @@ public class SampleOp extends OpMode {
     public void init() {
 
         comBot = CommonRobot.getCommonRobot(hardwareMap, telemetry);
+        Log.d("sloth","What about this?");
     }
 
     @Override
     public void loop() {
         telemetry.addLine("Press A to reset Yaw");
         double currentTime = getRuntime();
+        comBot.update();
 
         // If you press the A button, then you reset the Yaw to be zero from the way
         // the robot is currently pointing
@@ -64,9 +68,10 @@ public class SampleOp extends OpMode {
             comBot.ballRelease.setPosition(.7);
             isOpen=false;
         }
-        if (gamepad1.dpad_up){
+        if (gamepad1.dpadUpWasPressed()){
             ButtersMode=!ButtersMode;
         }
+        telemetry.addLine("Butter's Mode: "+ (ButtersMode?"on":"off"));
 
 
         double setspeed=0;
@@ -79,16 +84,16 @@ public class SampleOp extends OpMode {
         comBot.leftShooter.setPower(setspeed);
         comBot.rightShooter.setPower(setspeed);
 
+
         if(ButtersMode){
-            comBot.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+            comBot.drive(-gamepad1.left_stick_y*Math.abs(gamepad1.left_stick_y), gamepad1.left_stick_x*Math.abs(gamepad1.left_stick_x), gamepad1.right_stick_x*Math.abs(gamepad1.right_stick_x));
         }else{
-            comBot.driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+            comBot.driveFieldRelative(-gamepad1.left_stick_y*Math.abs(gamepad1.left_stick_y), gamepad1.left_stick_x*Math.abs(gamepad1.left_stick_x), gamepad1.right_stick_x*Math.abs(gamepad1.right_stick_x));
         }
 
-        for (int i = 0; i < 4; i++){
-            telemetry.addLine("Motor " + i + " Encoder Count: " + comBot.DriveMotors[i].getCurrentPosition());
-        }
-        telemetry.addLine("Imu facing "+comBot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+//        for (int i = 0; i < 4; i++){
+//            telemetry.addLine("Motor " + i + " Encoder Count: " + comBot.DriveMotors[i].getCurrentPosition());
+//        }
     }
 
 }

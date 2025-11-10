@@ -46,6 +46,7 @@ public class GBPinPointILocalizer implements ILocalizer {
         GoBildaPinpointDriver.EncoderDirection strafeEncoderDir = GoBildaPinpointDriver.EncoderDirection.FORWARD;
 
         pinpointDriver.setEncoderDirections(forwardEncoderDir, strafeEncoderDir);
+//        pinpointDriver.setEncoderResolution(19.89436789,DistanceUnit.MM);
 
         pinpointDriver.resetPosAndIMU();
         pinpointDriver.setPosition(start);
