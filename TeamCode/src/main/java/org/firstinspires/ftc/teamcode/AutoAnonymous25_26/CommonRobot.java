@@ -93,14 +93,14 @@ public class CommonRobot {
             DriveMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             DriveMotors[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
-        centerOfMass=new double[]{6,-1};
-        edgeLengths= new double[]{16,16};
+        centerOfMass=new double[]{0,0};
+        edgeLengths= new double[]{18,18};
         //Forward, Right, Clockwise
         motorAdjust= new double[]{1,1,1};
-        motorAdjust[0]= Math.sqrt(1+10*Math.abs(centerOfMass[1])/edgeLengths[1]);
-        motorAdjust[0]= centerOfMass[1]>=0?motorAdjust[0]:1/motorAdjust[0];
-        motorAdjust[1]= Math.sqrt(1+10*Math.abs(centerOfMass[0])/edgeLengths[0]);
-        motorAdjust[1]= centerOfMass[0]>=0?motorAdjust[1]:1/motorAdjust[1];
+        motorAdjust[0]= 1;//Math.sqrt(1+10*Math.abs(centerOfMass[1])/edgeLengths[1]);
+        motorAdjust[1]= 1;//centerOfMass[1]>=0?motorAdjust[0]:1/motorAdjust[0];
+        motorAdjust[2]= 1;//Math.sqrt(1+10*Math.abs(centerOfMass[0])/edgeLengths[0]);
+        motorAdjust[2]= 1;//centerOfMass[0]>=0?motorAdjust[1]:1/motorAdjust[1];
         Log.d("DriveTesting","F: "+motorAdjust[0]+" S: "+motorAdjust[1]);
 
     }
@@ -131,10 +131,10 @@ public class CommonRobot {
         // This calculates the power needed for each wheel based on the amount of forward,
         // strafe right, and rotate
         double [] motorPowers = {
-                forward*motorAdjust[0] + right*(1/motorAdjust[1])  + rotate,//FL
-                forward*motorAdjust[0] - right*motorAdjust[1] - rotate,//FR
-                forward*(1/motorAdjust[0]) - right*motorAdjust[1] + rotate,//BR
-                forward*(1/motorAdjust[0])  + right*(1/motorAdjust[1])  - rotate//BL
+                forward + right  + rotate,//FL
+                forward - right - rotate,//FR
+                forward - right + rotate,//BR
+                forward  + right  - rotate//BL
         };
 
         double maxPower = 1.0;
