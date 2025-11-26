@@ -1,13 +1,13 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.CLUtils;
 
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 /**
  * Interface for localization methods.
  */
-public interface Localizer {
-    void setPose(Pose2d pose);
+public interface ILocalizer {
+    void setPose(Pose2D pose);
 
     /**
      * Returns the current pose estimate.
@@ -15,11 +15,10 @@ public interface Localizer {
      * you must call update() to update the pose estimate.
      * @return the Localizer's current pose
      */
-    Pose2d getPose();
+    Pose2D getPose();
 
     /**
      * Updates the Localizer's pose estimate.
-     * @return the Localizer's current velocity estimate
      */
-    PoseVelocity2d update();
+    void update();
 }

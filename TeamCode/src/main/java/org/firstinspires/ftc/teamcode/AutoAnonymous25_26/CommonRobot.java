@@ -3,7 +3,8 @@ package org.firstinspires.ftc.teamcode.AutoAnonymous25_26;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
-import com.qualcomm.hardware.limelightvision.Limelight3A;
+import android.util.Log;
+
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -13,6 +14,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.CLUtils.ChassisControl;
+import org.firstinspires.ftc.teamcode.CLUtils.GBPinPointILocalizer;
+import org.firstinspires.ftc.teamcode.CLUtils.Utils;
 
 public class CommonRobot {
     public static CommonRobot INSTANCE;
@@ -21,12 +27,18 @@ public class CommonRobot {
     public DcMotor rightShooter;
     public Servo ballRelease;
     public IMU imu;
+    public GBPinPointILocalizer localizer;
 
-    public Limelight3A ll;
+    public ChassisControl chassisControl=new ChassisControl(60,50,1);
 
     public double initialHeading = 0;
+    public double[] centerOfMass=new double[]{6,-1};
+    public double[] edgeLengths= new double[]{16,16};
+    //Forward, Right, Clockwise
+    public double[] motorAdjust= new double[]{1,1,1};
 
     Telemetry telemetry;
+    HardwareMap hardwareMap;
     int FL=0, FR=1, BL=2, BR=3;
 
     public static CommonRobot getCommonRobot(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -34,11 +46,12 @@ public class CommonRobot {
         if (INSTANCE == null) {
             INSTANCE = new CommonRobot(hardwareMap, telemetry);
         }
-        INSTANCE.init();
+        INSTANCE.init(telemetry);
      return INSTANCE;
     }
-    public CommonRobot(HardwareMap hardwareMap, Telemetry tel) {
+    public CommonRobot(HardwareMap hm, Telemetry tel) {
         telemetry = tel;
+        hardwareMap = hm;
 
         DriveMotors[FL] = hardwareMap.get(DcMotor.class, "driveFrontLeft");
         DriveMotors[FR] = hardwareMap.get(DcMotor.class, "driveFrontRight");
@@ -51,54 +64,54 @@ public class CommonRobot {
 
         ballRelease = hardwareMap.get(Servo.class, "ballRelease");
 
+
         imu = hardwareMap.get(IMU.class, "imu");
 
-//        ll=hardwareMap.get(Limelight3A.class, "limelight");
+
         // This needs to be changed to match the orientation on your robot
-
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.UP;
-
-        RevHubOrientationOnRobot orientationOnRobot = new
-                RevHubOrientationOnRobot(logoDirection, usbDirection);
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
     }
 
-    public void init(){
+    public void init(Telemetry tel){
+        telemetry=tel;
         // We set the left motors in reverse which is needed for drive trains where the left
         // motors are opposite to the right ones.
+//        localizer = new GBPinPointILocalizer(hardwareMap);
+//        localizer.init();
+        imu.initialize(new IMU.Parameters(new
+                RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD)));
+        imu.resetYaw();
         DriveMotors[FR].setDirection(DcMotor.Direction.REVERSE);
         DriveMotors[BR].setDirection(DcMotor.Direction.REVERSE);
-//        leftShooter.setDirection(DcMotor.Direction.REVERSE);
-//        rightShooter.setDirection(DcMotor.Direction.REVERSE);
+        leftShooter.setDirection(DcMotor.Direction.REVERSE);
+        rightShooter.setDirection(DcMotor.Direction.REVERSE);
 
         // This uses RUN_USING_ENCODER to be more accurate.   If you don't have the encoder
         // wires, you should remove these
         for(int i = 0; i <4; i++){
             DriveMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            DriveMotors[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
+        centerOfMass=new double[]{0,0};
+        edgeLengths= new double[]{18,18};
+        //Forward, Right, Clockwise
+        motorAdjust= new double[]{1,1,1};
+        motorAdjust[0]= 1;//Math.sqrt(1+10*Math.abs(centerOfMass[1])/edgeLengths[1]);
+        motorAdjust[1]= 1;//centerOfMass[1]>=0?motorAdjust[0]:1/motorAdjust[0];
+        motorAdjust[2]= 1;//Math.sqrt(1+10*Math.abs(centerOfMass[0])/edgeLengths[0]);
+        motorAdjust[2]= 1;//centerOfMass[0]>=0?motorAdjust[1]:1/motorAdjust[1];
+        Log.d("DriveTesting","F: "+motorAdjust[0]+" S: "+motorAdjust[1]);
+
     }
 
-    public void SetShootSpeed(double power){
-        leftShooter.setPower(power);
-        rightShooter.setPower(power);
+    public void driveFieldRelative(){
+        driveFieldRelative(chassisControl.forward, chassisControl.strafe, chassisControl.rotate);
     }
+
     public void driveFieldRelative(double forward, double right, double rotate) {
-        // First, convert direction being asked to drive to polar coordinates
-//        double theta = Math.atan2(forward, right);
-//        double r = Math.hypot(right, forward);
-//
-//        // Second, rotate angle by the angle the robot is pointing
-//        theta = AngleUnit.normalizeRadians(theta -
-//                imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
-//        telemetry.addLine("IMU angle theta: "+theta);
-//
-//        // Third, convert back to cartesian
-//        double newForward = r * Math.sin(theta);
-//        double newRight = r * Math.cos(theta);
         double theta = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+//        double theta = localizer.getPose().getHeading(AngleUnit.RADIANS);
         double newForward = forward*Math.cos(theta)-right*Math.sin(theta);
         double newRight = forward*Math.sin(theta)+right*Math.cos(theta);
 
@@ -106,15 +119,22 @@ public class CommonRobot {
         drive(newForward, newRight, rotate);
     }
 
-    // Thanks to FTC16072 for sharing this code!!
+    public void update(){
+//        localizer.update();
+        telemetry.addLine("Imu facing "+imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+//        telemetry.addLine("Forward: "+localizer.getPose().getX(DistanceUnit.MM));
+//        telemetry.addLine("Sideways: "+localizer.getPose().getY(DistanceUnit.MM));
+//        telemetry.addLine("heading: "+localizer.getPose().getHeading(AngleUnit.DEGREES));
+    }
+
     public void drive(double forward, double right, double rotate) {
         // This calculates the power needed for each wheel based on the amount of forward,
         // strafe right, and rotate
         double [] motorPowers = {
-                forward + right + rotate,//FL
+                forward + right  + rotate,//FL
                 forward - right - rotate,//FR
                 forward - right + rotate,//BR
-                forward + right - rotate//BL
+                forward  + right  - rotate//BL
         };
 
         double maxPower = 1.0;
