@@ -4,11 +4,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.CLUtils.GBPinPointILocalizer;
+import org.firstinspires.ftc.teamcode.CLUtils.GBPinPointLocalizer;
 
 @TeleOp(name = "Odotest", group = "Robot")
 public class Odotest extends OpMode {
-    GBPinPointILocalizer GB;
+    GBPinPointLocalizer GB;
 
     @Override
     public void init() {
@@ -17,7 +17,7 @@ public class Odotest extends OpMode {
     @Override
     public void loop() {
         if(GB==null){
-            GB = new GBPinPointILocalizer(hardwareMap);
+            GB = new GBPinPointLocalizer(hardwareMap);
         }
         GB.update();
     telemetry.addLine("x;"+GB.getPose().getX(DistanceUnit.INCH));

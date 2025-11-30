@@ -1,15 +1,9 @@
 package org.firstinspires.ftc.teamcode.AutoAnonymous25_26;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 import android.util.Log;
 
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -17,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.CLUtils.ChassisControl;
-import org.firstinspires.ftc.teamcode.CLUtils.GBPinPointILocalizer;
+import org.firstinspires.ftc.teamcode.CLUtils.GBPinPointLocalizer;
 import org.firstinspires.ftc.teamcode.CLUtils.Utils;
 
 public class CommonRobot {
@@ -26,16 +20,15 @@ public class CommonRobot {
     public DcMotor leftShooter;
     public DcMotor rightShooter;
     public Servo ballRelease;
-    public IMU imu;
-    public GBPinPointILocalizer localizer;
+//    public IMU imu;
+    public GBPinPointLocalizer localizer;
 
-    public ChassisControl chassisControl=new ChassisControl(60,50,1);
-
-    public double initialHeading = 0;
+    public ChassisControl chassisControl=new ChassisControl(96,70,4*Math.PI);
     public double[] centerOfMass=new double[]{6,-1};
     public double[] edgeLengths= new double[]{16,16};
     //Forward, Right, Clockwise
     public double[] motorAdjust= new double[]{1,1,1};
+    public static Pose2D startingPose= Utils.PoseInDeg(0,0,0);
 
     Telemetry telemetry;
     HardwareMap hardwareMap;
@@ -44,12 +37,15 @@ public class CommonRobot {
     public static CommonRobot getCommonRobot(HardwareMap hardwareMap, Telemetry telemetry) {
 
         if (INSTANCE == null) {
-            INSTANCE = new CommonRobot(hardwareMap, telemetry);
+            INSTANCE = new CommonRobot();
         }
-        INSTANCE.init(telemetry);
+        INSTANCE.init(hardwareMap, telemetry);
      return INSTANCE;
     }
-    public CommonRobot(HardwareMap hm, Telemetry tel) {
+    private CommonRobot() {
+    }
+
+    public void init(HardwareMap hm, Telemetry tel){
         telemetry = tel;
         hardwareMap = hm;
 
@@ -60,35 +56,20 @@ public class CommonRobot {
 
         leftShooter = hardwareMap.get(DcMotor.class, "leftShooter");
         rightShooter = hardwareMap.get(DcMotor.class, "rightShooter");
-
-
         ballRelease = hardwareMap.get(Servo.class, "ballRelease");
-
-
-        imu = hardwareMap.get(IMU.class, "imu");
-
-
-        // This needs to be changed to match the orientation on your robot
-    }
-
-    public void init(Telemetry tel){
-        telemetry=tel;
-        // We set the left motors in reverse which is needed for drive trains where the left
-        // motors are opposite to the right ones.
-//        localizer = new GBPinPointILocalizer(hardwareMap);
-//        localizer.init();
-        imu.initialize(new IMU.Parameters(new
-                RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
-                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD)));
-        imu.resetYaw();
+//        imu = hardwareMap.get(IMU.class, "imu");
+        localizer = new GBPinPointLocalizer(hardwareMap);
+        localizer.init(startingPose);
+//        imu.initialize(new IMU.Parameters(new
+//                RevHubOrientationOnRobot(
+//                RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
+//                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD)));
+//        imu.resetYaw();
         DriveMotors[FR].setDirection(DcMotor.Direction.REVERSE);
         DriveMotors[BR].setDirection(DcMotor.Direction.REVERSE);
         leftShooter.setDirection(DcMotor.Direction.REVERSE);
         rightShooter.setDirection(DcMotor.Direction.REVERSE);
 
-        // This uses RUN_USING_ENCODER to be more accurate.   If you don't have the encoder
-        // wires, you should remove these
         for(int i = 0; i <4; i++){
             DriveMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             DriveMotors[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -106,12 +87,20 @@ public class CommonRobot {
     }
 
     public void driveFieldRelative(){
-        driveFieldRelative(chassisControl.forward, chassisControl.strafe, chassisControl.rotate);
+        //update Chassis inputs to
+        Pose2D control = chassisControl.getControlAs(ChassisControl.AlignmentGrid.Field);
+        //this uses inches and degrees as dummy units because those are the units being used when the values are stored.
+        //they actually represent control inputs from -1 to 1
+        driveFieldRelative(control.getX(DistanceUnit.INCH), control.getY(DistanceUnit.INCH), control.getHeading(AngleUnit.DEGREES));
+    }
+
+    public void drive(){
+        drive(chassisControl.forward, chassisControl.strafe, chassisControl.rotate);
     }
 
     public void driveFieldRelative(double forward, double right, double rotate) {
-        double theta = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-//        double theta = localizer.getPose().getHeading(AngleUnit.RADIANS);
+//        double theta = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        double theta = localizer.getPose().getHeading(AngleUnit.RADIANS);
         double newForward = forward*Math.cos(theta)-right*Math.sin(theta);
         double newRight = forward*Math.sin(theta)+right*Math.cos(theta);
 
@@ -120,16 +109,21 @@ public class CommonRobot {
     }
 
     public void update(){
-//        localizer.update();
-        telemetry.addLine("Imu facing "+imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
-//        telemetry.addLine("Forward: "+localizer.getPose().getX(DistanceUnit.MM));
-//        telemetry.addLine("Sideways: "+localizer.getPose().getY(DistanceUnit.MM));
-//        telemetry.addLine("heading: "+localizer.getPose().getHeading(AngleUnit.DEGREES));
+//        telemetry.addLine("Imu facing "+imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        startingPose= localizer.getPose();
+        telemetry.addLine("Pose - x: "+Utils.DoubleToString(startingPose.getX(DistanceUnit.INCH))+" | "+
+                "y: "+Utils.DoubleToString(startingPose.getY(DistanceUnit.INCH))+" | "+
+                "heading: "+Utils.DoubleToString(startingPose.getHeading(AngleUnit.DEGREES)));
+        telemetry.addLine("CC - x: "+Utils.DoubleToString(chassisControl.forward)+" | "+
+                "y: "+Utils.DoubleToString(chassisControl.strafe)+" | "+
+                "heading: "+Utils.DoubleToString(chassisControl.rotate));
+        telemetry.addLine("Coord System: "+chassisControl.alignment.name());
     }
 
     public void drive(double forward, double right, double rotate) {
         // This calculates the power needed for each wheel based on the amount of forward,
         // strafe right, and rotate
+
         double [] motorPowers = {
                 forward + right  + rotate,//FL
                 forward - right - rotate,//FR
@@ -146,6 +140,7 @@ public class CommonRobot {
         for(int i = 0; i<4; i++){
             maxPower = Math.max(maxPower, Math.abs(motorPowers[i]));
         }
+        Log.d("Driving","drive - F="+Utils.DoubleToString(forward)+"| S="+Utils.DoubleToString(right)+"| R="+Utils.DoubleToString(rotate)+"| Scale="+Utils.DoubleToString(maxPower));
 
         // We multiply by maxSpeed so that it can be set lower for outreaches
         // When a young child is driving the robot, we may not want to allow full
@@ -153,6 +148,10 @@ public class CommonRobot {
         for(int i = 0; i<4; i++){
             DriveMotors[i].setPower(maxSpeed*(motorPowers[i]/maxPower));
         }
+    }
+
+    public void SetShootSpeed(double power){
+        leftShooter.setPower(power);
     }
 
 }

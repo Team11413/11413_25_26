@@ -1,44 +1,91 @@
 package org.firstinspires.ftc.teamcode.AutoAnonymous25_26;
 
-import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.IMU;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.CLUtils.FieldPositions;
+import org.firstinspires.ftc.teamcode.CLUtils.ChassisControl;
 
 
-@TeleOp(name = "Robot: Field Relative Mecanum Drive", group = "Robot")
+@TeleOp(name = "Primary", group = "Robot")
 public class SampleOp extends OpMode {
 
     CommonRobot comBot;
 
     double targetspeed = 0.6;
+    double currentTime=0;
     boolean shooterenabled = false;
     double openTime= .3;
     double closedTime=0;
     boolean isOpen=true;
     public boolean ButtersMode=true;
 
+    public AimAssist autoAim=AimAssist.OFF;
+    public enum AimAssist{
+        OFF,ON,Disabling;
+        public AimAssist next(){
+            switch (this){
+                case ON:return Disabling;
+                case OFF:return ON;
+                case Disabling:return OFF;
+            }
+            return null;
+        }
+    }
+    public Pose2D Goal;
+    ChassisControl.AlignmentGrid ag = ChassisControl.AlignmentGrid.FTC;
+
     @Override
     public void init() {
-
+        CommonRobot.startingPose= FieldPositions.Pose.BLUEGOALCLOSE.get();
         comBot = CommonRobot.getCommonRobot(hardwareMap, telemetry);
+        comBot.chassisControl.zero();
     }
 
     @Override
     public void loop() {
-        telemetry.addLine("Press A to reset Yaw");
-        double currentTime = getRuntime();
+        currentTime = getRuntime();
+        comBot.localizer.update();
+        comBot.update();
+        checkControls();
 
-        // If you press the A button, then you reset the Yaw to be zero from the way
-        // the robot is currently pointing
-        if (gamepad1.aWasPressed()) {
-            comBot.imu.resetYaw();
+        double setspeed=0;
+        if(shooterenabled){
+            setspeed=targetspeed;
         }
+        if ((isOpen&&closedTime<=currentTime)) {
+            comBot.ballRelease.setPosition(.9);
+            isOpen=false;
+            targetspeed-=.08;
+        }
+        comBot.SetShootSpeed(setspeed);
+
+        telemetry.addLine("Shooter Speed: "+setspeed);
+        telemetry.addLine("Butters Mode: "+ButtersMode);
+        telemetry.addLine("Aim Bot: "+autoAim);
+
+
+
+        if(autoAim==AimAssist.ON&&Goal!=null){
+            comBot.chassisControl.aimAt(comBot.localizer.getPose(),Goal);
+        }else if(autoAim==AimAssist.Disabling){
+            comBot.chassisControl.clearPID();
+            autoAim= autoAim.next();
+        }
+        if(ButtersMode){
+            comBot.chassisControl.alignment= ChassisControl.AlignmentGrid.Robot;
+            comBot.drive();
+        }else{
+            comBot.chassisControl.alignment= ag;
+            comBot.driveFieldRelative();
+        }
+    }
+
+    private void checkControls(){
+        comBot.chassisControl.forward = -(gamepad1.left_stick_y*Math.abs(gamepad1.left_stick_y));
+        comBot.chassisControl.strafe = (gamepad1.left_stick_x*Math.abs(gamepad1.left_stick_x));
+        comBot.chassisControl.rotate= (gamepad1.right_stick_x*Math.abs(gamepad1.right_stick_x));
         if (gamepad1.yWasPressed()){
             shooterenabled=!shooterenabled;
         }
@@ -54,47 +101,26 @@ public class SampleOp extends OpMode {
                 targetspeed=1;
             }
         }
-
         if (gamepad1.xWasPressed()) {
-            comBot.ballRelease.setPosition(1);
+            comBot.ballRelease.setPosition(.7);
             isOpen=true;
             closedTime = currentTime+openTime;
             targetspeed+=.08;
         }
-
-        if (gamepad1.bWasPressed()||(isOpen&&closedTime<=currentTime)) {
-            comBot.ballRelease.setPosition(.7);
-            isOpen=false;
-            targetspeed-=.08;
+        if(gamepad1.bWasPressed()){
+            autoAim= autoAim.next();
         }
-        if (gamepad1.dpad_up){
+        if (gamepad1.dpadUpWasPressed()){
             ButtersMode=!ButtersMode;
         }
-
-
-        double setspeed=0;
-        if(shooterenabled){
-            setspeed=targetspeed;
+        if(gamepad1.dpadRightWasPressed()){
+            ag = ChassisControl.AlignmentGrid.Blue;
+            Goal=FieldPositions.Pose.BLUEGOALCLOSE.get();
         }
-
-        telemetry.addLine("Shooter Speed: "+setspeed);
-
-        comBot.SetShootSpeed(setspeed);
-
-        double forward = -(gamepad1.left_stick_y*Math.abs(gamepad1.left_stick_y));
-        double strafe = (gamepad1.left_stick_x*Math.abs(gamepad1.left_stick_x));
-        double rotate= (gamepad1.right_stick_x*Math.abs(gamepad1.right_stick_x));
-
-        if(ButtersMode){
-            comBot.drive(forward, strafe, rotate);
-        }else{
-            comBot.driveFieldRelative(forward, strafe, rotate);
+        if(gamepad1.dpadLeftWasPressed()){
+            ag = ChassisControl.AlignmentGrid.Red;
+            Goal=FieldPositions.Pose.REDGOALCLOSE.get();
         }
-
-        for (int i = 0; i < 4; i++){
-            telemetry.addLine("Motor " + i + " Encoder Count: " + comBot.DriveMotors[i].getCurrentPosition());
-        }
-        telemetry.addLine("Imu facing "+comBot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
     }
 
 }

@@ -4,9 +4,9 @@ package org.firstinspires.ftc.teamcode.CLUtils;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 
 import java.util.Objects;
 
@@ -15,25 +15,26 @@ import java.util.Objects;
 Follow instructions on https://www.gobilda.com/content/user_manuals/3110-0002-0001%20User%20Guide.pdf?srsltid=AfmBOorM1PlzS2GLNSg2hNrXD6W5brI_C8CQShsL7EHB5A29S8V3XJBa
 for setup.
  */
-public class GBPinPointILocalizer implements ILocalizer {
+public class GBPinPointLocalizer implements ILocalizer {
 
     public static class Params {
-        public double forwardOdoOffset = 0.0; // y position of the parallel encoder (in tick units)
-        public double strafeOdoOffset = 0.0; // x position of the perpendicular encoder (in tick units)
+        public double forwardOdoOffset = -99.4; // y position of the parallel encoder (in tick units)
+        public double strafeOdoOffset = 183.5; // x position of the perpendicular encoder (in tick units)
     }
 
     public static Params PARAMS = new Params();
 
     /*
-    Center field is 0,0
-    Positive X is towards the Audience
-    Positive Y is towards the Blue Alliance
+    FTC coordinates, Assume you are in the center of the field facing the audience
+    position= 0,0 and 0 degrees
+    Positive X is forward
+    Positive Y is left
     Positive heading is Counter-Clockwise
      */
     private Pose2D txPinpointRobot;
     GoBildaPinpointDriver pinpointDriver;
 
-    public GBPinPointILocalizer(HardwareMap hardwareMap){
+    public GBPinPointLocalizer(HardwareMap hardwareMap){
         pinpointDriver = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     }
 
@@ -42,13 +43,13 @@ public class GBPinPointILocalizer implements ILocalizer {
         pinpointDriver.setOffsets(PARAMS.forwardOdoOffset, PARAMS.strafeOdoOffset, DistanceUnit.MM);
 
         // TODO: reverse encoder directions if needed
-        GoBildaPinpointDriver.EncoderDirection forwardEncoderDir = GoBildaPinpointDriver.EncoderDirection.FORWARD;
-        GoBildaPinpointDriver.EncoderDirection strafeEncoderDir = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+        GoBildaPinpointDriver.EncoderDirection forwardEncoderDir = GoBildaPinpointDriver.EncoderDirection.REVERSED;
+        GoBildaPinpointDriver.EncoderDirection strafeEncoderDir = GoBildaPinpointDriver.EncoderDirection.REVERSED;
 
         pinpointDriver.setEncoderDirections(forwardEncoderDir, strafeEncoderDir);
 //        pinpointDriver.setEncoderResolution(19.89436789,DistanceUnit.MM);
 
-        pinpointDriver.resetPosAndIMU();
+//        pinpointDriver.resetPosAndIMU();
         pinpointDriver.setPosition(start);
         txPinpointRobot = start;
     }
@@ -74,7 +75,7 @@ public class GBPinPointILocalizer implements ILocalizer {
     public void update() {
         pinpointDriver.update();
         if (Objects.requireNonNull(pinpointDriver.getDeviceStatus()) == GoBildaPinpointDriver.DeviceStatus.READY) {
-            txPinpointRobot = Utils.PoseInRad(pinpointDriver.getPosX(DistanceUnit.INCH), pinpointDriver.getPosY(DistanceUnit.INCH), pinpointDriver.getHeading(UnnormalizedAngleUnit.RADIANS));
+            txPinpointRobot = Utils.PoseInRad(pinpointDriver.getPosX(DistanceUnit.INCH), pinpointDriver.getPosY(DistanceUnit.INCH), pinpointDriver.getHeading(AngleUnit.RADIANS));
         }
     }
 }

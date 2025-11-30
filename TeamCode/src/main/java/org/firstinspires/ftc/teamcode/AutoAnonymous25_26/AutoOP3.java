@@ -21,7 +21,7 @@ public class AutoOP3 extends LinearOpMode {
 //            telemetry.addData(">", "Robot Heading = %4.0f", getHeading());
             telemetry.update();
         }
-        comBot.imu.resetYaw();
+//        comBot.imu.resetYaw();
         sleep(250);
 
         // begin commands

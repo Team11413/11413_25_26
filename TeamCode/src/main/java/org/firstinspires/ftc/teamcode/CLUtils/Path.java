@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.CLUtils;
 
 import android.util.Log;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -11,44 +13,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 public class Path {
 
     public Pose2D[] points;
-    public double duration, elapsedTime=0;
     public double[] lineLengths;
     public double totalLength=0;
-
-    public static Path NonGeneratedPath(Pose2D...Points){
-        Path p = new Path();
-        Pose2D zeroth = extendLine(Points[1], Points[0], 1);
-        Pose2D last = extendLine(Points[Points.length-2],Points[Points.length-1],1);
-        p.points=new Pose2D[Points.length+2];
-        p.points[0]=zeroth;
-        p.points[Points.length+1]=last;
-        System.arraycopy(Points, 0, p.points, 1, Points.length);
-        return p;
-    }
-
-    public static Path GeneratePathFromCurrent(double duration, Pose2D current, Path original){
-        Path p = new Path();
-        p.duration=duration;
-        int oc= original.points.length;
-        Pose2D zeroth = extendLine(original.points[2], current, 1);
-        Pose2D last = extendLine(original.points[oc-2],original.points[oc-1],1);
-        p.points=new Pose2D[original.points.length+1];
-        p.points[0]=zeroth;
-        p.points[1]=current;
-        System.arraycopy(original.points, 1, p.points, 2, original.points.length - 2);
-        p.FillLineLengths();
-        return p;
-    }
 
     /*
     There should be at least 2 targets to designate a start and end point.
      */
-    public static Path GeneratePath(double duration, Pose2D... targets){
+    public static Path GeneratePath(Pose2D... targets){
+        long start=System.currentTimeMillis();
         if(targets.length<2){
             return null;
         }
         Path p = new Path();
-        p.duration=duration;
         Pose2D zeroth = extendLine(targets[1], targets[0], 1);
         Pose2D last = extendLine(targets[targets.length-2],targets[targets.length-1],1);
         p.points=new Pose2D[targets.length+2];
@@ -56,6 +32,7 @@ public class Path {
         p.points[targets.length+1]=last;
         System.arraycopy(targets,0,p.points,1,targets.length);
         p.FillLineLengths();
+        Log.d("Pathing","Path - Took "+(System.currentTimeMillis()-start)+"ms to generate a path with "+targets.length+" points");
         return p;
     }
 
@@ -64,7 +41,7 @@ public class Path {
             return points[2];
         }
         if(t>=1){
-            return points[points.length-1];
+            return points[points.length-2];
         }
         double ot=t;
         double desiredLength= totalLength*t;
@@ -74,7 +51,7 @@ public class Path {
             segment++;
         }
         t=desiredLength/lineLengths[segment];
-        Log.d("PathTesting","total progress: "+String.format("%.4f",ot)+" chooses Line Segment: "+segment+" with partial progress: "+t);
+//        Log.d("PathTesting","total progress: "+String.format("%.4f",ot)+" chooses Line Segment: "+segment+" with partial progress: "+t);
         return CubicHermiteInterp(segment,t);
     }
 
