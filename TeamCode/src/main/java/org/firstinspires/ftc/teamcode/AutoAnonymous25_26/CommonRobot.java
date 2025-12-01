@@ -5,6 +5,7 @@ import android.util.Log;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.teamcode.CLUtils.Utils;
 
 public class CommonRobot {
     public static CommonRobot INSTANCE;
+    public VoltageSensor battery;
     public DcMotor [] DriveMotors = new DcMotor[4];
     public DcMotor leftShooter;
     public DcMotor rightShooter;
@@ -48,6 +50,8 @@ public class CommonRobot {
     public void init(HardwareMap hm, Telemetry tel){
         telemetry = tel;
         hardwareMap = hm;
+
+        battery = hardwareMap.voltageSensor.iterator().next();
 
         DriveMotors[FL] = hardwareMap.get(DcMotor.class, "driveFrontLeft");
         DriveMotors[FR] = hardwareMap.get(DcMotor.class, "driveFrontRight");
@@ -118,6 +122,7 @@ public class CommonRobot {
                 "y: "+Utils.DoubleToString(chassisControl.strafe)+" | "+
                 "heading: "+Utils.DoubleToString(chassisControl.rotate));
         telemetry.addLine("Coord System: "+chassisControl.alignment.name());
+        telemetry.addLine(battery.getDeviceName()+": "+Utils.DoubleToString(battery.getVoltage()));
     }
 
     public void drive(double forward, double right, double rotate) {
