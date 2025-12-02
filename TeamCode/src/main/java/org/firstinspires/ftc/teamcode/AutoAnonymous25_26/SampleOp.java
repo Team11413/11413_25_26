@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.AutoAnonymous25_26;
 
+import android.icu.text.RelativeDateTimeFormatter;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -120,6 +122,9 @@ public class SampleOp extends OpMode {
         if(gamepad1.dpadLeftWasPressed()){
             ag = ChassisControl.AlignmentGrid.Red;
             Goal=FieldPositions.Pose.REDGOALCLOSE.get();
+        }
+        if (gamepad1.dpadDownWasPressed()) {
+            comBot.localizer.setPose(ag == ChassisControl.AlignmentGrid.Red? FieldPositions.Pose.REDPLAYER.get(): FieldPositions.Pose.BLUEPLAYER.get());
         }
     }
 
