@@ -117,11 +117,11 @@ public class SampleOp extends OpMode {
         }
         if(gamepad1.dpadRightWasPressed()){
             ag = ChassisControl.AlignmentGrid.Blue;
-            Goal=FieldPositions.Pose.BLUEGOALCLOSE.get();
+            Goal=FieldPositions.Pose.BLUEGOAL.get();
         }
         if(gamepad1.dpadLeftWasPressed()){
             ag = ChassisControl.AlignmentGrid.Red;
-            Goal=FieldPositions.Pose.REDGOALCLOSE.get();
+            Goal=FieldPositions.Pose.REDGOAL.get();
         }
         if (gamepad1.dpadDownWasPressed()) {
             comBot.localizer.setPose(ag == ChassisControl.AlignmentGrid.Red? FieldPositions.Pose.REDPLAYER.get(): FieldPositions.Pose.BLUEPLAYER.get());

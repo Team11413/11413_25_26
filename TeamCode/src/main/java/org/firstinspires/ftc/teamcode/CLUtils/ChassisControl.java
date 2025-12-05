@@ -105,7 +105,7 @@ public class ChassisControl {
             }
         }
         //now get the error
-        rotate=thetaControl.getPID(tolerance(smartRadianDiff(headingToTarget,current.getHeading(AngleUnit.RADIANS)),.1));
+        rotate=thetaControl.getPID(tolerance(smartRadianDiff(headingToTarget,current.getHeading(AngleUnit.RADIANS)),.02));
         rotate=alignment!=AlignmentGrid.FTC?-rotate:rotate;
         Log.d("AimBot","x: "+Utils.DoubleToString(x)+" | y: "+Utils.DoubleToString(y)+" | Current Heading: "+Utils.DoubleToString(current.getHeading(AngleUnit.DEGREES))+" | targetHeading: "+Utils.DoubleToString(headingToTarget*180/Math.PI));
 //        Log.d("AimBot","targetHeading: "+Utils.DoubleToString(headingToTarget*180/Math.PI)+" | PID rotation command: "+Utils.DoubleToString(rotate));

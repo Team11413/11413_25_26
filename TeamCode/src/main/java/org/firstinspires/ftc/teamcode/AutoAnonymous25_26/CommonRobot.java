@@ -125,6 +125,16 @@ public class CommonRobot {
         telemetry.addLine(battery.getDeviceName()+": "+Utils.DoubleToString(battery.getVoltage()));
     }
 
+    public void scaleShooter(Pose2D target) {
+        Pose2D currentPose = localizer.getPose();
+        double x = Math.abs(currentPose.getX(DistanceUnit.INCH) - target.getX(DistanceUnit.INCH));
+        double y = Math.abs(currentPose.getY(DistanceUnit.INCH) - target.getY(DistanceUnit.INCH));
+        double totalDist = x * x + y * y;
+        totalDist= (totalDist-256)/24336;
+        double output= totalDist*.25+.5;
+        leftShooter.setPower(output);
+    }
+
     public void drive(double forward, double right, double rotate) {
         // This calculates the power needed for each wheel based on the amount of forward,
         // strafe right, and rotate
