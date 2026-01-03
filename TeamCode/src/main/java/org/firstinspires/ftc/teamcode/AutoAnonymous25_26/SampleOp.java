@@ -15,7 +15,7 @@ public class SampleOp extends OpMode {
 
     CommonRobot comBot;
 
-    double targetspeed = 0.6;
+    double targetspeed = 0.43;
     double currentTime=0;
     boolean shooterenabled = false;
     double openTime= .3;
@@ -87,7 +87,7 @@ public class SampleOp extends OpMode {
     private void checkControls(){
         comBot.chassisControl.forward = -(gamepad1.left_stick_y*Math.abs(gamepad1.left_stick_y));
         comBot.chassisControl.strafe = (gamepad1.left_stick_x*Math.abs(gamepad1.left_stick_x));
-        comBot.chassisControl.rotate= (gamepad1.right_stick_x*Math.abs(gamepad1.right_stick_x));
+        comBot.chassisControl.rotate = (gamepad1.right_stick_x*Math.abs(gamepad1.right_stick_x));
         if (gamepad1.yWasPressed()){
             shooterenabled=!shooterenabled;
         }

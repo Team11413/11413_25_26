@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name="Blue-Audience-Shoots", group="Robot")
+@Autonomous(name="Blue Audience", group="Robot")
 public class AutoOP1 extends LinearOpMode {
     static final double     COUNTS_PER_MOTOR_REV    = 537.7 ;   // eg: GoBILDA 312 RPM Yellow Jacket
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
@@ -25,25 +25,28 @@ public class AutoOP1 extends LinearOpMode {
         sleep(250);
 
         // begin commands
-        comBot.SetShootSpeed(.5);
-        timeFieldDrive(0.7,0,-.08,2.0);
+        comBot.SetShootSpeed(.87);
+        sleep(2000);
+        timeFieldDrive(0,.3,.57,.5);
         shoot();
-        sleep(200);
+        sleep(1300);
         shoot();
-        sleep(200);
+        sleep(1000);
         shoot();
-        timeFieldDrive(-0.7,0,0,.5);
+        comBot.SetShootSpeed(0);
+        timeFieldDrive(0.5,0,0,.5);
+
         while(opModeIsActive()){
 
         }
     }
 
     private void shoot(){
-        comBot.ballRelease.setPosition(1);
-        comBot.SetShootSpeed(.55);
-        sleep(250);
-        comBot.ballRelease.setPosition(.7);
-        comBot.SetShootSpeed(.5);
+        comBot.ballRelease.setPosition(.5);
+        comBot.SetShootSpeed(.82);
+        sleep(350);
+        comBot.ballRelease.setPosition(.9);
+        comBot.SetShootSpeed(.77);
 
     }
 

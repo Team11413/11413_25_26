@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.AutoAnonymous25_26;
 import android.util.Log;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.CLUtils.ChassisControl;
 import org.firstinspires.ftc.teamcode.CLUtils.GBPinPointLocalizer;
+import org.firstinspires.ftc.teamcode.CLUtils.PID;
 import org.firstinspires.ftc.teamcode.CLUtils.Utils;
 
 public class CommonRobot {
@@ -71,8 +73,8 @@ public class CommonRobot {
 //        imu.resetYaw();
         DriveMotors[FR].setDirection(DcMotor.Direction.REVERSE);
         DriveMotors[BR].setDirection(DcMotor.Direction.REVERSE);
-        leftShooter.setDirection(DcMotor.Direction.REVERSE);
-        rightShooter.setDirection(DcMotor.Direction.REVERSE);
+        leftShooter.setDirection(DcMotor.Direction.FORWARD);
+        rightShooter.setDirection(DcMotor.Direction.FORWARD);
 
         for(int i = 0; i <4; i++){
             DriveMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -166,7 +168,19 @@ public class CommonRobot {
     }
 
     public void SetShootSpeed(double power){
+        power = power * 12 / battery.getVoltage();
         leftShooter.setPower(power);
     }
+public void readyflipper(){
+ballRelease.setPosition(0.9);
+}
+public void shootflipper(){
+     ballRelease.setPosition(0.7);
+}
+
+PID shooterPID = new PID(0.8, 0.01, 0.1);
+double mmPerTick = 96 * Math.PI / 28;
+double targetVelocity = 40;
 
 }
+

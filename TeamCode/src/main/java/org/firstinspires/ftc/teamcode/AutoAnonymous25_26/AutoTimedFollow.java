@@ -57,7 +57,13 @@ public class AutoTimedFollow extends LinearOpMode {
         follower.newPath(moveToFirstRow,20);
         follow();
     }
+private void  shoot3(){
+    comBot.leftShooter.setPower(.47);
+    comBot.shootflipper();
+    sleep(200);
+    comBot.readyflipper();
 
+    }
     private void follow(){
         ct = getRuntime();
         lt = ct-looptime;

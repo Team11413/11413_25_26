@@ -17,8 +17,8 @@ public class FieldPositions {
         BLUEGOALCLOSE(Utils.PoseInDeg(-58,-60,-135)),
         BLUESPIKE1START(Utils.PoseInDeg(-24,-24,-90)),
         BLUESPIKE1END(Utils.PoseInDeg(-24,-30,-90)),
-        BLUEGOAL(Utils.PoseInDeg(-72,-72, -135)),
-        REDGOAL(Utils.PoseInDeg(-72,72,135)),
+        BLUEGOAL(Utils.PoseInDeg(-69,-69, -135)),
+        REDGOAL(Utils.PoseInDeg(-69,69,135)),
         BLUEPLAYER(Utils.PoseInDeg(63,63,0)),
         REDPLAYER(Utils.PoseInDeg(-63,-63,0));
         private final Pose2D pose;

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.AutoAnonymous25_26;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Blue Audience", group="Robot")
+@Autonomous(name="Red Goal", group="Robot")
 public class AutoOP4 extends LinearOpMode {
     static final double     COUNTS_PER_MOTOR_REV    = 537.7 ;   // eg: GoBILDA 312 RPM Yellow Jacket
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
@@ -22,24 +22,29 @@ public class AutoOP4 extends LinearOpMode {
         }
 
         // begin commands
-        comBot.leftShooter.setPower(0.75);
-        comBot.ballRelease.setPosition(1);
-        sleep (4000);
+        comBot.SetShootSpeed(.75);
+        sleep(1500);
         shoot();
-        sleep(750);
+        sleep(1000);
         shoot();
-        sleep(750);
+        sleep(1000);
         shoot();
-        comBot.leftShooter.setPower(0);
-        sleep(600);
-        timeFieldDrive(-0.3,0,0,1);
+        sleep(400);
+        comBot.SetShootSpeed(0);
+        timeFieldDrive(-0.5,0.4,0,1.0);
 
+        while(opModeIsActive()){
+
+        }
     }
 
-    private void shoot() {
-        comBot.ballRelease.setPosition(0.5);
-        sleep (400);
-        comBot.ballRelease.setPosition(1);
+    private void shoot(){
+        comBot.ballRelease.setPosition(.5);
+        comBot.SetShootSpeed(.6);
+        sleep(350);
+        comBot.ballRelease.setPosition(.9);
+        comBot.SetShootSpeed(.55);
+
     }
 
     private void timeDrive(double forward,
