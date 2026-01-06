@@ -17,14 +17,14 @@ public class ShooterSystem{
     dScale are a set of chosen distances from the goal.
     aScale is a set of angular velocities that are found to shoot consistently at the chosen distances
     aScale can be prepopulated with calculated values, to at least be close to the ideal.
-    fScale are the power settings that will eventually stabalize at the found velocities
+    fScale are the power settings that will eventually stabilize at the found velocities
      */
-    private final double[] dScale = new double[]{0,15,30,45,60,75,90};
-    private final double[] aScale = new double[]{42,48,54,60,66,72,78};
-    private final double[] fScale = new double[]{.42,.48,.54,.6,.66,.72,.78};
+    public final double[] dScale = new double[]{0,15,30,45,60,75,90};
+    public final double[] aScale = new double[]{42,48,54,60,66,72,78};
+    public final double[] fScale = new double[]{.42,.48,.54,.6,.66,.72,.78};
     private double target = 0;
     public double distanceToGoal = -1;
-    private double cRPS = 0;
+    public double cRPS = 0;
     private double tRPS = 0;
     private double pTicks=0;
     private double cTicks=0;
@@ -59,12 +59,25 @@ public class ShooterSystem{
         tRPS = Utils.scaledLerp(target,aScale,.001);
         double error = tRPS-cRPS;
         power=velPIDF.calculate(error);
+
+
         tel.addLine("Distance to goal: "+ Utils.DoubleToString(distanceToGoal));
         tel.addLine("Rotations per second: "+Utils.DoubleToString(cRPS));
         tel.addLine("Target speed: "+ Utils.DoubleToString(tRPS));
         tel.addLine("Power: "+Utils.DoubleToString(power));
     }
 
+    public void testUpdate(double loopTime, double goalDist){
+        distanceToGoal=goalDist;
+        pTicks= cTicks;
+        cTicks= shooter.getCurrentPosition();
+        cRPS = ((cTicks-pTicks)/ticksPerRevolution)/loopTime;
+        setPowers(Utils.scaledLerp(Utils.invScaledLerp(goalDist, dScale), fScale, 0));
+        tel.addLine("Distance to goal: "+ Utils.DoubleToString(distanceToGoal));
+        tel.addLine("Rotations per second: "+Utils.DoubleToString(cRPS));
+        tel.addLine("Target speed: "+ Utils.DoubleToString(tRPS));
+        tel.addLine("Power: "+Utils.DoubleToString(power));
+    }
 
     public double getFeedForward() {
         return Utils.scaledLerp(Utils.invScaledLerp(distanceToGoal,dScale),fScale,.01);
