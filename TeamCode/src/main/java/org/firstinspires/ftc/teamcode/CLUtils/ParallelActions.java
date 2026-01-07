@@ -46,6 +46,7 @@ public class ParallelActions {
                 actions.remove(tR);
                 finished.remove(tR);
             }
+            toRemove.clear();
         }
         return (remove && actions.isEmpty())||(!remove &&count==actions.size());
     }
