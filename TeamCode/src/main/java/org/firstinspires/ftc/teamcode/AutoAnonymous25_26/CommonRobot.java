@@ -13,18 +13,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.CLUtils.ChassisControl;
+import org.firstinspires.ftc.teamcode.CLUtils.FieldPositions;
 import org.firstinspires.ftc.teamcode.CLUtils.GBPinPointLocalizer;
 import org.firstinspires.ftc.teamcode.CLUtils.PID;
 import org.firstinspires.ftc.teamcode.CLUtils.Utils;
 
 public class CommonRobot {
     public static CommonRobot INSTANCE;
+    public long lastLoop =0;
+    public double loopTime=0;
     public VoltageSensor battery;
     public DcMotor [] DriveMotors = new DcMotor[4];
-    public DcMotor leftShooter;
-    public DcMotor rightShooter;
+    public ShooterSystem ss;
     public Servo ballRelease;
-//    public IMU imu;
     public GBPinPointLocalizer localizer;
 
     public ChassisControl chassisControl=new ChassisControl(96,70,4*Math.PI);
@@ -33,6 +34,7 @@ public class CommonRobot {
     //Forward, Right, Clockwise
     public double[] motorAdjust= new double[]{1,1,1};
     public static Pose2D startingPose= Utils.PoseInDeg(0,0,0);
+    public Pose2D Goal;
 
     Telemetry telemetry;
     HardwareMap hardwareMap;
@@ -60,8 +62,8 @@ public class CommonRobot {
         DriveMotors[BL] = hardwareMap.get(DcMotor.class, "driveBackLeft");
         DriveMotors[BR] = hardwareMap.get(DcMotor.class, "driveBackRight");
 
-        leftShooter = hardwareMap.get(DcMotor.class, "leftShooter");
-        rightShooter = hardwareMap.get(DcMotor.class, "rightShooter");
+        ss=ShooterSystem.instance;
+        ss.init(hm, tel);
         ballRelease = hardwareMap.get(Servo.class, "ballRelease");
 //        imu = hardwareMap.get(IMU.class, "imu");
         localizer = new GBPinPointLocalizer(hardwareMap);
@@ -73,8 +75,6 @@ public class CommonRobot {
 //        imu.resetYaw();
         DriveMotors[FR].setDirection(DcMotor.Direction.REVERSE);
         DriveMotors[BR].setDirection(DcMotor.Direction.REVERSE);
-        leftShooter.setDirection(DcMotor.Direction.FORWARD);
-        rightShooter.setDirection(DcMotor.Direction.FORWARD);
 
         for(int i = 0; i <4; i++){
             DriveMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -115,8 +115,8 @@ public class CommonRobot {
     }
 
     public void update(){
-//        telemetry.addLine("Imu facing "+imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
         startingPose= localizer.getPose();
+        ss.update(Utils.getLoopTime(),Utils.dist(startingPose, Goal, DistanceUnit.INCH));
         telemetry.addLine("Pose - x: "+Utils.DoubleToString(startingPose.getX(DistanceUnit.INCH))+" | "+
                 "y: "+Utils.DoubleToString(startingPose.getY(DistanceUnit.INCH))+" | "+
                 "heading: "+Utils.DoubleToString(startingPose.getHeading(AngleUnit.DEGREES)));
@@ -124,17 +124,7 @@ public class CommonRobot {
                 "y: "+Utils.DoubleToString(chassisControl.strafe)+" | "+
                 "heading: "+Utils.DoubleToString(chassisControl.rotate));
         telemetry.addLine("Coord System: "+chassisControl.alignment.name());
-        telemetry.addLine(battery.getDeviceName()+": "+Utils.DoubleToString(battery.getVoltage()));
-    }
-
-    public void scaleShooter(Pose2D target) {
-        Pose2D currentPose = localizer.getPose();
-        double x = Math.abs(currentPose.getX(DistanceUnit.INCH) - target.getX(DistanceUnit.INCH));
-        double y = Math.abs(currentPose.getY(DistanceUnit.INCH) - target.getY(DistanceUnit.INCH));
-        double totalDist = x * x + y * y;
-        totalDist= (totalDist-256)/24336;
-        double output= totalDist*.25+.5;
-        leftShooter.setPower(output);
+//        telemetry.addLine(battery.getDeviceName()+": "+Utils.DoubleToString(battery.getVoltage()));
     }
 
     public void drive(double forward, double right, double rotate) {
@@ -167,10 +157,10 @@ public class CommonRobot {
         }
     }
 
-    public void SetShootSpeed(double power){
-        power = power * 12 / battery.getVoltage();
-        leftShooter.setPower(power);
-    }
+//    public void SetShootSpeed(double power){
+//        power = power * 12 / battery.getVoltage();
+//        leftShooter.setPower(power);
+//    }
 public void readyflipper(){
 ballRelease.setPosition(0.9);
 }
