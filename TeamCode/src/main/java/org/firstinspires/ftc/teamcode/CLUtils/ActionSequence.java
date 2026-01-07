@@ -34,7 +34,7 @@ public class ActionSequence {
         public Supplier<Boolean> setTimer(double millis){
             return new ActionSequence(
                     ()->{
-                        waitForMillis=100;
+                        waitForMillis=millis;
                         wait.reset();
                         return true;
                     },
