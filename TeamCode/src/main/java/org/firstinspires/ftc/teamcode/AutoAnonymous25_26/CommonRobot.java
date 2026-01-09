@@ -24,6 +24,7 @@ public class CommonRobot {
     public double loopTime=0;
     public VoltageSensor battery;
     public DcMotor [] DriveMotors = new DcMotor[4];
+    public DcMotor intake;
     public ShooterSystem ss;
     public Servo ballRelease;
     public GBPinPointLocalizer localizer;
@@ -61,6 +62,7 @@ public class CommonRobot {
         DriveMotors[FR] = hardwareMap.get(DcMotor.class, "driveFrontRight");
         DriveMotors[BL] = hardwareMap.get(DcMotor.class, "driveBackLeft");
         DriveMotors[BR] = hardwareMap.get(DcMotor.class, "driveBackRight");
+        intake = hardwareMap.get(DcMotor.class, "intake");
 
         ss=ShooterSystem.instance;
         ss.init(hm, tel);
@@ -115,8 +117,11 @@ public class CommonRobot {
     }
 
     public void update(){
+        localizer.update();
         startingPose= localizer.getPose();
-        ss.update(Utils.getLoopTime(),Utils.dist(startingPose, Goal, DistanceUnit.INCH));
+        if(Goal!=null) {
+            ss.update(Utils.getLoopTime(), Utils.dist(startingPose, Goal, DistanceUnit.INCH));
+        }
         telemetry.addLine("Pose - x: "+Utils.DoubleToString(startingPose.getX(DistanceUnit.INCH))+" | "+
                 "y: "+Utils.DoubleToString(startingPose.getY(DistanceUnit.INCH))+" | "+
                 "heading: "+Utils.DoubleToString(startingPose.getHeading(AngleUnit.DEGREES)));

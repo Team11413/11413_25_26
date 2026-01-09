@@ -105,18 +105,23 @@ public class SampleOp extends OpMode {
         if (gamepad1.yWasPressed()) {
             shooterenabled = !shooterenabled;
         }
-        if (gamepad1.leftBumperWasPressed()) {
-            targetspeed -= .05;
-            if (targetspeed < 0) {
-                targetspeed = 0;
-            }
+        double power = 0;
+        if (gamepad1.left_bumper) {
+            power = -0.5;
+//            targetspeed -= .05;
+//            if (targetspeed < 0) {
+//                targetspeed = 0;
+//            }
         }
-        if (gamepad1.rightBumperWasPressed()) {
-            targetspeed += .05;
-            if (targetspeed > 1) {
-                targetspeed = 1;
-            }
+        if (gamepad1.right_bumper) {
+            power = 0.5;
+//            targetspeed += .05;
+//            if (targetspeed > 1) {
+//                targetspeed = 1;
+//            }
         }
+        comBot.intake.setPower(power);
+
         if (gamepad1.xWasPressed()) {
 //            comBot.ballRelease.setPosition(.7);
 //            isOpen = true;

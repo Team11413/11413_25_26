@@ -25,7 +25,7 @@ public class AutoOP2 extends LinearOpMode {
         sleep(250);
 
         // begin commands
-        comBot.SetShootSpeed(.80);
+//        comBot.SetShootSpeed(.80);
         timeFieldDrive(-0.4, 0, 0, 0.3);
         sleep(1300);
         shoot();
@@ -34,7 +34,7 @@ public class AutoOP2 extends LinearOpMode {
         sleep(1000);
         shoot();
         sleep(400);
-        comBot.SetShootSpeed(0);
+//        comBot.SetShootSpeed(0);
         timeFieldDrive(-0.5,-0.4,0,1.0);
 
         while(opModeIsActive()){
@@ -44,10 +44,10 @@ public class AutoOP2 extends LinearOpMode {
 
     private void shoot(){
         comBot.ballRelease.setPosition(.5);
-        comBot.SetShootSpeed(.6);
+//        comBot.SetShootSpeed(.6);
         sleep(350);
         comBot.ballRelease.setPosition(.9);
-        comBot.SetShootSpeed(.55);
+//        comBot.SetShootSpeed(.55);
 
     }
 

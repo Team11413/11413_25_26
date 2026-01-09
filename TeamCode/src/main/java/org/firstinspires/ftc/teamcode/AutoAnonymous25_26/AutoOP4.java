@@ -22,7 +22,7 @@ public class AutoOP4 extends LinearOpMode {
         }
 
         // begin commands
-        comBot.SetShootSpeed(.75);
+//        comBot.SetShootSpeed(.75);
         sleep(1500);
         shoot();
         sleep(1000);
@@ -30,9 +30,9 @@ public class AutoOP4 extends LinearOpMode {
         sleep(1000);
         shoot();
         sleep(400);
-        comBot.SetShootSpeed(0);
-        timeFieldDrive(-0.5,0.4,0,1.0);
-
+//        comBot.SetShootSpeed(0);
+//        timeFieldDrive(-0.5,0.4,0,1.0);
+//
         while(opModeIsActive()){
 
         }
@@ -40,10 +40,10 @@ public class AutoOP4 extends LinearOpMode {
 
     private void shoot(){
         comBot.ballRelease.setPosition(.5);
-        comBot.SetShootSpeed(.6);
+//        comBot.SetShootSpeed(.6);
         sleep(350);
         comBot.ballRelease.setPosition(.9);
-        comBot.SetShootSpeed(.55);
+//        comBot.SetShootSpeed(.55);
 
     }
 

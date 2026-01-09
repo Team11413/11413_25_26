@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.CLUtils.ActionSequence;
 import org.firstinspires.ftc.teamcode.CLUtils.PIDF;
-import org.firstinspires.ftc.teamcode.CLUtils.SmartServo;
 import org.firstinspires.ftc.teamcode.CLUtils.Utils;
 
 
@@ -35,6 +34,7 @@ public class ShooterSystem{
     private double cTicks=0;
     private int ticksPerRevolution = 28;
     private double power = 0;
+    public boolean enabled = true;
     private PIDF velPIDF = new PIDF(5,()-> 0.0,()->0.0,()->0.0, this::getFeedForward);
     public ActionSequence shoot;
     private ActionSequence.Wait shotTimer = new ActionSequence.Wait();
@@ -75,12 +75,16 @@ public class ShooterSystem{
         tRPS = Utils.scaledLerp(target,aScale,.001);
         lastError = tRPS-cRPS;
         power=velPIDF.calculate(lastError);
+        if(enabled){
+            setPowers();
+        }
 
 
         tel.addLine("Distance to goal: "+ Utils.DoubleToString(distanceToGoal));
         tel.addLine("Rotations per second: "+Utils.DoubleToString(cRPS));
         tel.addLine("Target speed: "+ Utils.DoubleToString(tRPS));
         tel.addLine("Power: "+Utils.DoubleToString(power));
+        tel.addLine("Error: "+Utils.DoubleToString(lastError));
     }
 
     public void testUpdate(double loopTime, double goalDist){

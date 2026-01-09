@@ -32,7 +32,7 @@ public class Utils {
 
     public static double invScaledLerp(double target, double[] scale){
         double p = scale.length-1;
-        for (int i = (int) p; i >0; i--) {
+        for (int i = (int) p-1; i >0; i--) {
             p--;
             if(target>i){
                 p+=(target-scale[i])/(scale[i+1]-scale[i]);
