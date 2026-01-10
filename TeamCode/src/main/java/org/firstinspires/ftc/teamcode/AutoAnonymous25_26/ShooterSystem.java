@@ -39,11 +39,14 @@ public class ShooterSystem{
     private double cTicks=0;
     private int ticksPerRevolution = 28;
     private double power = 0;
+    public double speedAdjust=0;
     public boolean enabled = false;
     public double p=0;
     public double i=0;
     public double d=0;
     private PIDF velPIDF = new PIDF(5,()-> p,()->i,()->d, this::getFeedForward);
+    private double averageError=0;
+    private double allowedErrorPercent=.1;
     public ActionSequence shoot;
     public ActionSequence shootThree;
     public ParallelActions launch;
@@ -77,7 +80,7 @@ public class ShooterSystem{
 
     public boolean atSpeed(){
         Log.d("Actions","atSpeed");
-        return Math.abs(lastError)<5;}
+        return Math.abs(averageError)<tRPS*allowedErrorPercent;}
 
     public void setPowers(double power){
         this.power=power;
@@ -102,11 +105,12 @@ public class ShooterSystem{
             cRPS = ((cTicks - pTicks) / ticksPerRevolution) / loopTime;
         }
         target = Utils.invScaledLerp(distanceToGoal,dScale);
-        tRPS = Utils.scaledLerp(target,aScale,.001);
+        tRPS = Utils.scaledLerp(target,aScale,.001)+speedAdjust;
         lastError = tRPS-cRPS;
         power=0;
         if(enabled){
             power=velPIDF.calculate(lastError);
+            averageError=velPIDF.averageError()/ticksPerRevolution;
         }
         setPowers();
 
@@ -120,7 +124,11 @@ public class ShooterSystem{
 
     public void testUpdate(double loopTime, double goalDist){
         update(loopTime,goalDist);
-        tel.addLine("Error: "+Utils.DoubleToString(lastError/ticksPerRevolution));
+        tel.addLine("Average Error: "+Utils.DoubleToString(averageError));
+        if(Math.abs(averageError)<=tRPS*allowedErrorPercent){
+            tel.addLine("Stable Speed found: "+tRPS+averageError);
+        }
+
     }
 
     public double getFeedForward() {

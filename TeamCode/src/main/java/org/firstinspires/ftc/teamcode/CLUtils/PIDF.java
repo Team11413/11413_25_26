@@ -24,6 +24,7 @@ public class PIDF {
     private int sIndex=0;
     private int tIndex=0;
     private int qIndex=0;
+    private double errorSum=0;
 
     public PIDF(int historyLength, Supplier<Double> p, Supplier<Double> i,Supplier<Double> d,Supplier<Double> f){
         pGain=p;
@@ -39,16 +40,20 @@ public class PIDF {
 
     public double calculate(double error){
         history[pIndex]=error;
-        double intError= 0;
+        errorSum= 0;
         for (double v : history) {
-            intError += v;
+            errorSum += v;
         }
         double derError= 3*error-4*history[sIndex]+3*history[tIndex]-history[qIndex];
         qIndex=tIndex;
         tIndex=sIndex;
         sIndex=pIndex;
         pIndex=increment(pIndex);
-        return pGain.get()*error+ iGain.get()*intError+ dGain.get()*derError+ fGain.get();
+        return pGain.get()*error+ iGain.get()*errorSum+ dGain.get()*derError+ fGain.get();
+    }
+
+    public double averageError(){
+        return errorSum/history.length;
     }
 
     private int increment(int val){
