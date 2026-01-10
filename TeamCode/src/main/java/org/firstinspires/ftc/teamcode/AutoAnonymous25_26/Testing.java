@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.CLUtils.AtomicAction;
 import org.firstinspires.ftc.teamcode.CLUtils.ParallelActions;
 import org.firstinspires.ftc.teamcode.CLUtils.Utils;
 
@@ -18,67 +19,130 @@ public class Testing extends OpMode {
 
     private ParallelActions continuous;
 
-    public Testing(){
+    public Testing() {
 
     }
 
     @Override
     public void init() {
 //        combot = CommonRobot.getCommonRobot(hardwareMap,telemetry);
-        ss.init(hardwareMap,telemetry);
+        ss.init(hardwareMap, telemetry);
         Utils.resetLoopTimer(this::getRuntime);
-        continuous=new ParallelActions(true,
-                ()->{
+        continuous = new ParallelActions(true,
+                new AtomicAction((unused)->Utils.resetLoopTimer(this::getRuntime)),
+                new AtomicAction((unused)->{
                     ss.testUpdate(Utils.getLoopTime(), ss.dScale[index]);
-                    ss.aScale[index] = ss.cRPS;
-                    return false;
+//                    ss.aScale[index] = ss.cRPS;
+                    telemetry.addLine("increment: "+increment);
                 },
-                this::testPIDControls);
+                        ()->false),
+                new AtomicAction(this::testFFControls));
     }
 
     @Override
     public void loop() {
 //        combot.update();
         continuous.run();
-        telemetry.addLine("Current Distance: " + ss.dScale[index]);
-        telemetry.addLine("Current RPS: " + ss.cRPS);
-        telemetry.addLine("Current FF: " + ss.fScale[index]);
     }
-    public boolean testPIDControls(){
-        if(gamepad1.dpadRightWasPressed()){
+
+    public boolean testFFControls() {
+        if (gamepad1.dpadRightWasPressed()) {
             //cycle right on the scale
 
         }
-        if(gamepad1.dpadLeftWasPressed()){
+        if (gamepad1.dpadLeftWasPressed()) {
             //cycle left on the scale
 
         }
         if (gamepad1.dpadUpWasPressed()) {
             //raise Index
-            index = (index + 1)%7;
+            index = (index + 1) % 7;
         }
-        if(gamepad1.dpadDownWasPressed()){
+        if (gamepad1.dpadDownWasPressed()) {
             //lower Index
-            index = (index + 6)%7;
+            index = (index + 6) % 7;
         }
-        if(gamepad1.rightBumperWasPressed()){
+        if (gamepad1.rightBumperWasPressed()) {
             //apply increment up
-            ss.fScale[index] = Math.min( Math.max( ss.fScale[index] + increment, 0), 1);
+            ss.fScale[index] = Math.min(Math.max(ss.fScale[index] + increment, 0), 1);
         }
-        if(gamepad1.leftBumperWasPressed()){
+        if (gamepad1.leftBumperWasPressed()) {
             //apply increment down
-            ss.fScale[index] = Math.min( Math.max( ss.fScale[index] - increment, 0), 1);
+            ss.fScale[index] = Math.min(Math.max(ss.fScale[index] - increment, 0), 1);
         }
-        if(gamepad1.aWasPressed()){
+        if (gamepad1.aWasPressed()) {
             //reduce increment size
-            increment = increment *10;
+            increment = increment * 10;
         }
-        if(gamepad1.bWasPressed()){
+        if (gamepad1.bWasPressed()) {
             //increase increment size
-            increment = increment /10;
+            increment = increment / 10;
         }
-        if(gamepad1.xWasPressed()){
-            continuous.addAction(ss.shoot::run);
+        if(gamepad1.yWasPressed()){
+            continuous.addAction(new AtomicAction(this::testPIDControls));
+            index=0;
+            return true;
+        }
+
+        telemetry.addLine("Current FF: " + ss.fScale[index]);
+        return false;
+    }
+
+    public boolean testPIDControls(){
+        if(gamepad1.dpadUpWasPressed()){
+            //cycle PID
+            index = (index + 1) % 3;
+        }
+        if (gamepad1.aWasPressed()) {
+            //reduce increment size
+            increment = increment * 10;
+        }
+        if (gamepad1.bWasPressed()) {
+            //increase increment size
+            increment = increment / 10;
+        }
+        if (gamepad1.rightBumperWasPressed()) {
+            //apply increment up
+            switch (index){
+                case 0: ss.p+=increment;
+                break;
+                case 1: ss.i+=increment;
+                break;
+                case 2: ss.d+=increment;
+                break;
+            }
+        }
+        if (gamepad1.leftBumperWasPressed()) {
+            //apply increment down
+            switch (index){
+                case 0: ss.p-=increment;
+                    break;
+                case 1: ss.i-=increment;
+                    break;
+                case 2: ss.d-=increment;
+                    break;
+            }
+        }
+        if(gamepad1.yWasPressed()){
+            continuous.addAction(new AtomicAction(this::testFFControls));
+            return true;
+        }
+        switch(index){
+            case 0:
+                telemetry.addLine("P: "+ss.p);
+                telemetry.addLine("i: "+ss.i);
+                telemetry.addLine("d: "+ss.d);
+                break;
+            case 1:
+                telemetry.addLine("p: "+ss.p);
+                telemetry.addLine("I: "+ss.i);
+                telemetry.addLine("d: "+ss.d);
+                break;
+            case 2:
+                telemetry.addLine("p: "+ss.p);
+                telemetry.addLine("i: "+ss.i);
+                telemetry.addLine("D: "+ss.d);
+                break;
         }
         return false;
     }

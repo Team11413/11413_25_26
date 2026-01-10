@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.AutoAnonymous25_26;
 
 import android.icu.text.RelativeDateTimeFormatter;
+import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.CLUtils.AtomicAction;
 import org.firstinspires.ftc.teamcode.CLUtils.FieldPositions;
 import org.firstinspires.ftc.teamcode.CLUtils.ChassisControl;
 import org.firstinspires.ftc.teamcode.CLUtils.ParallelActions;
@@ -50,12 +52,19 @@ public class SampleOp extends OpMode {
     @Override
     public void init() {
         continuous = new ParallelActions(true,
-                () -> {
-                    comBot.localizer.update();
+                new AtomicAction((unused) -> {
+                    Utils.resetLoopTimer(this::getRuntime);
+                    if (comBot.Goal == null) {
+                        comBot.Goal = FieldPositions.Pose.BLUEGOAL.get();
+                    }
+                }),
+                new AtomicAction((unused) -> {
+                    Utils.getLoopTime();
                     comBot.update();
                     checkControls();
-                    return false;
-                }
+                },
+                        () -> false
+                )
         );
         CommonRobot.startingPose = FieldPositions.Pose.BLUEGOALSTART.get();
         comBot = CommonRobot.getCommonRobot(hardwareMap, telemetry);
@@ -103,7 +112,7 @@ public class SampleOp extends OpMode {
         comBot.chassisControl.strafe = (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x));
         comBot.chassisControl.rotate = (gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x));
         if (gamepad1.yWasPressed()) {
-            shooterenabled = !shooterenabled;
+            comBot.ss.enabled=!comBot.ss.enabled;
         }
         double power = 0;
         if (gamepad1.left_bumper) {
@@ -127,7 +136,7 @@ public class SampleOp extends OpMode {
 //            isOpen = true;
 //            closedTime = currentTime + openTime;
 //            targetspeed += .08;
-            continuous.addAction(comBot.ss.shoot::run);
+            continuous.addAction(comBot.ss.shoot);
         }
         if (gamepad1.bWasPressed()) {
             autoAim = autoAim.next();
@@ -146,9 +155,9 @@ public class SampleOp extends OpMode {
         if (gamepad1.dpadDownWasPressed()) {
             comBot.localizer.setPose(ag == ChassisControl.AlignmentGrid.Red ? FieldPositions.Pose.REDPLAYER.get() : FieldPositions.Pose.BLUEPLAYER.get());
         }
-        if(gamepad2.right_trigger>0){
+        if (gamepad2.right_trigger > 0) {
             //spin intake to pull in balls
-        }else if(gamepad2.left_trigger>0){
+        } else if (gamepad2.left_trigger > 0) {
             //spin intake to eject balls
         }
     }

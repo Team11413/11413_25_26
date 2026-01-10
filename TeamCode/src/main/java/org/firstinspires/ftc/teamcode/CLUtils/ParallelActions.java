@@ -1,53 +1,80 @@
 package org.firstinspires.ftc.teamcode.CLUtils;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
-public class ParallelActions {
+public class ParallelActions extends AtomicAction{
     private boolean remove=false;
-    private ArrayList<Supplier<Boolean>> actions = new ArrayList<Supplier<Boolean>>();
+    private int completed = 0;
+    private ArrayList<AtomicAction> actions = new ArrayList<AtomicAction>();
 
     private ArrayList<Integer> toRemove = new ArrayList<Integer>();
     private ArrayList<Boolean> finished = new ArrayList<Boolean>();
 
-    public ParallelActions(Boolean removeWhenFinished, Supplier<Boolean>... args){
+    public ParallelActions(Boolean removeWhenFinished, AtomicAction... args){
+        super();
         actions.addAll(Arrays.asList(args));
-        for (Supplier<Boolean> action:actions) {
+        for (AtomicAction action:actions) {
             finished.add(false);
         }
         remove=removeWhenFinished;
     }
 
-    public void addAction(Supplier<Boolean> action){
-        if(actions.contains(action)){
-            return;
+    public void addAction(AtomicAction action){
+        if(!actions.contains(action)){
+            actions.add(action);
+            finished.add(false);
         }
-        actions.add(action);
-        finished.add(false);
     }
 
-    public boolean run(){
-        int count=0;
+    @Override
+    protected void internalExecute(Void unused) {
+        completed=0;
         for (int i = 0; i < actions.size(); i++) {
             if(!finished.get(i)){
-                if(actions.get(i).get()){
-                    count++;
+                Log.d("ActionsParallel","Running Index "+i);
+                actions.get(i).run();
+                if(actions.get(i).isComplete.get()){
+                    completed++;
                     finished.set(i,true);
                     toRemove.add(i);
+                    Log.d("ActionsParallel","Index "+i+" Done");
+                }else{
+//                    Log.d("ActionsParallel","not Done");
                 }
             }else{
-                count++;
+                completed++;
             }
         }
         if(remove) {
-            for (int i = toRemove.size() - 1; i > 0; i--) {
-                int tR = toRemove.get(i);
-                actions.remove(tR);
+            for (int tR:toRemove) {
                 finished.remove(tR);
+                actions.remove(tR).finish();
             }
             toRemove.clear();
         }
-        return (remove && actions.isEmpty())||(!remove &&count==actions.size());
+    }
+    @Override
+    protected boolean internalIsComplete(){
+        return (remove && actions.isEmpty())||(!remove &&completed==actions.size());
+    }
+
+    @Override
+    protected void internalEnd(Void unused) {
+        if(remove){
+            finished.clear();
+            toRemove.clear();
+            actions.clear();
+            return;
+        }
+        for (int i = 0; i < finished.size(); i++) {
+            finished.set(i,false);
+        }
+        for (AtomicAction action:actions) {
+            action.end.accept(null);
+        }
     }
 }

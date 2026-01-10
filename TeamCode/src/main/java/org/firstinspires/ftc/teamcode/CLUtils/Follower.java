@@ -49,6 +49,7 @@ public class Follower {
         }
         localizer.update();
         currentLocation= localizer.getPose();
+
     }
 
     private void updateControl(){
