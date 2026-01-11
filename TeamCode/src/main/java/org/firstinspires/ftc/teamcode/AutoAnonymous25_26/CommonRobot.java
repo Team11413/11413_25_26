@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.CLUtils.FieldPositions;
 import org.firstinspires.ftc.teamcode.CLUtils.GBPinPointLocalizer;
 import org.firstinspires.ftc.teamcode.CLUtils.PID;
 import org.firstinspires.ftc.teamcode.CLUtils.Utils;
+import org.slf4j.helpers.Util;
 
 public class CommonRobot {
     public static CommonRobot INSTANCE;
@@ -29,7 +30,7 @@ public class CommonRobot {
     public Servo ballRelease;
     public GBPinPointLocalizer localizer;
 
-    public ChassisControl chassisControl=new ChassisControl(96,70,4*Math.PI);
+    public ChassisControl chassisControl=new ChassisControl(180,160,4*Math.PI);
     public double[] centerOfMass=new double[]{6,-1};
     public double[] edgeLengths= new double[]{16,16};
     //Forward, Right, Clockwise
@@ -91,7 +92,6 @@ public class CommonRobot {
         motorAdjust[2]= 1;//Math.sqrt(1+10*Math.abs(centerOfMass[0])/edgeLengths[0]);
         motorAdjust[2]= 1;//centerOfMass[0]>=0?motorAdjust[1]:1/motorAdjust[1];
         Log.d("DriveTesting","F: "+motorAdjust[0]+" S: "+motorAdjust[1]);
-
     }
 
     public void driveFieldRelative(){

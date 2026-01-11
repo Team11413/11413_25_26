@@ -27,9 +27,9 @@ public class ShooterSystem{
     aScale can be prepopulated with calculated values, to at least be close to the ideal.
     fScale are the power settings that will eventually stabilize at the found velocities
      */
-    public final double[] dScale = new double[]{0,15,30,45,60,75,90};
-    public final double[] aScale = new double[]{42,48,54,60,66,72,78};
-    public final double[] fScale = new double[]{.42,.48,.54,.6,.66,.72,.78};
+    public final double[] dScale = new double[]{0,40,70,90,110,130,150};
+    public final double[] aScale = new double[]{48,52,56,62,66,72,78};
+    public final double[] fScale = new double[]{.58,.60,.64,.66,.68,.72,.78};
     private double target = 0;
     private double lastError=0;
     public double distanceToGoal = -1;
@@ -56,9 +56,13 @@ public class ShooterSystem{
     private ActionSequence.Wait shotTimer = new ActionSequence.Wait();
     private ActionSequence.Wait spinUpTimer = new ActionSequence.Wait();
 
+    private double[] looptimes = new double[]{0,0,0,0,0};
+    private double[] rotations = new double[]{0,0,0,0,0};
+    private double[] errors = new double[]{0,0,0,0,0};
+    private int averageindex=0;
     private ShooterSystem(){
         //make this a singleton
-        atSpeed = new RaceActions(new AtomicAction(this::atSpeed), spinUpTimer.setTimer(100));
+        atSpeed = new RaceActions(new AtomicAction(this::atSpeed), spinUpTimer.setTimer(200));
         launch= new ParallelActions(false,new AtomicAction(this::shootflipper), shotTimer.setTimer(350));
         reset= new ParallelActions(false, new AtomicAction(this::readyflipper), shotTimer.setTimer(350));
         quickReset= new ParallelActions(false,reset,new AtomicAction(this::atSpeed));
@@ -101,12 +105,28 @@ public class ShooterSystem{
         pTicks= cTicks;
         cTicks= -shooter.getCurrentPosition();
         cRPS=0;
-        if(loopTime>0) {
-            cRPS = ((cTicks - pTicks) / ticksPerRevolution) / loopTime;
+
+        rotations[averageindex]= ((cTicks - pTicks) / ticksPerRevolution);
+        looptimes[averageindex]= loopTime;
+        averageindex=(averageindex+1)%5;
+         double sumR=0;
+         double sumL=0;
+        for (int j = 0; j < 5; j++) {
+        sumR+=rotations[j];
+        sumL+=looptimes[j];
+        }
+
+        if(sumL>0) {
+            cRPS = sumR/sumL;
         }
         target = Utils.invScaledLerp(distanceToGoal,dScale);
         tRPS = Utils.scaledLerp(target,aScale,.001)+speedAdjust;
-        lastError = tRPS-cRPS;
+        errors[averageindex]=tRPS-cRPS;
+        lastError=0;
+        for (double er:errors) {
+            lastError+=er;
+        }
+        lastError=lastError/5;
         power=0;
         if(enabled){
             power=velPIDF.calculate(lastError);
@@ -125,8 +145,8 @@ public class ShooterSystem{
     public void testUpdate(double loopTime, double goalDist){
         update(loopTime,goalDist);
         tel.addLine("Average Error: "+Utils.DoubleToString(averageError));
-        if(Math.abs(averageError)<=tRPS*allowedErrorPercent){
-            tel.addLine("Stable Speed found: "+tRPS+averageError);
+        if(Math.abs(lastError)<=tRPS*allowedErrorPercent){
+            tel.addLine("Stable Speed found: "+(tRPS-lastError));
         }
 
     }

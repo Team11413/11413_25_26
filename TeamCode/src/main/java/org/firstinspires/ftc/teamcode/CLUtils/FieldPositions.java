@@ -15,25 +15,23 @@ public class FieldPositions {
         Robot offset from back right 6.4565, 8.74
         Robot offset from front left 10.9015, 8.819
         forward offset in y, 7.6085 in toward right
-        strafe offset in x, 1.31 in toward back
+        strafe offset in x, 1.31 in towrd back
      */
     public enum Pose{
         CENTER(Utils.PoseInDeg(0,0,0)),
-        BLUEGOAL(Utils.PoseInDeg(-69,-69, -135)),
-        BLUEGOALSTART(Utils.PoseInDeg(-58,-60,-135)),
-        BLUEGOALSCORE(Utils.PoseInDeg(-60,-60,-135)),
-        BLUESPIKE1LINEUP(Utils.PoseInDeg(-24,-20,-90)),
-        BLUESPIKE1START(Utils.PoseInDeg(-24,-24,-90)),
-        BLUESPIKE1END(Utils.PoseInDeg(-24,-30,-90)),
-        BLUESPIKE2LINEUP(Utils.PoseInDeg(0,-20,-90)),
-        BLUESPIKE2START(Utils.PoseInDeg(0,-24,-90)),
-        BLUESPIKE2END(Utils.PoseInDeg(0,-30,-90)),
-        BLUESPIKE3LINEUP(Utils.PoseInDeg(24,-20,-90)),
-        BLUESPIKE3START(Utils.PoseInDeg(24,-24,-90)),
-        BLUESPIKE3END(Utils.PoseInDeg(24,-30,-90)),
-        BLUEAUDIENCESTART(Utils.PoseInDeg(63,-12,-180)),
-        BLUEPLAYER(Utils.PoseInDeg(72-6.4565,72-8.74,-180)),
-        REDGOAL(Utils.PoseInDeg(-69,69, 135)),
+        BLUEGOAL(Utils.PoseInDeg(-66,-60, -128)),
+        BLUEGOALSTART(Utils.PoseInDeg(-59.19,-47.05,50)),
+        BLUEGOALOFFSET(Utils.PoseInDeg(-69,-50,52)),
+        BLUEGOALSCORE(Utils.PoseInDeg(-22.41,-17.04,-133)),
+        BLUESPIKE1START(Utils.PoseInDeg(-12,-28.61,-90)),
+        BLUESPIKE1END(Utils.PoseInDeg(-12,-50,-90)),
+        BLUESPIKE2START(Utils.PoseInDeg(12,-28,-90)),
+        BLUESPIKE2END(Utils.PoseInDeg(12,-50,-90)),
+        BLUESPIKE3START(Utils.PoseInDeg(36,-28,-90)),
+        BLUESPIKE3END(Utils.PoseInDeg(36,-50,-90)),
+        BLUEAUDIENCESTART(Utils.PoseInDeg(67,29,-180)),
+        BLUEPLAYER(Utils.PoseInDeg(66,61,179.7)),
+        REDGOAL(Utils.PoseInDeg(-67,29, 135)),
         REDGOALSTART(Utils.PoseInDeg(-58,60,135)),
         REDGOALSCORE(Utils.PoseInDeg(-60,60,135)),
         REDSPIKE1LINEUP(Utils.PoseInDeg(-24,20,90)),

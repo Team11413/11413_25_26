@@ -62,10 +62,14 @@ public class ChassisControl {
     }
 
     public void updateInputFromDistance(double f, double s, double r, double loopTime){
+        Log.d("PathTesting"," inputs f="+String.format("%.4f",f)+"| S="+String.format("%.4f",s)+"| R="+String.format("%.4g",r)+"| Scalar="+String.format("%.4g",loopTime));
+
         f= f/(forwardMaxSpeed*loopTime);
         s= s/(strafeMaxSpeed*loopTime);
         r= r/(rotationMaxSpeed*loopTime);
-        //cap to unit vector
+        Log.d("PathTesting"," inputs f="+String.format("%.4f",f)+"| S="+String.format("%.4f",s)+"| R="+String.format("%.4g",r)+"| Scalar="+String.format("%.4g",loopTime));
+
+                //cap to unit vector
         double scalar = Math.sqrt(f*f+s*s);
         if(scalar>1){
             f=f/scalar;

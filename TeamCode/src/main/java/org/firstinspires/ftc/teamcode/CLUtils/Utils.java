@@ -48,7 +48,12 @@ public class Utils {
      */
     public static double scaledLerp(double t, double[] scale, double tolerance){
         int idx=(int)t;
+        idx=Math.max(0,idx);
         double dif= t-idx;
+        if(idx>=scale.length-1){
+            dif=0;
+            idx=scale.length-1;
+        }
         if(dif<tolerance){
             return scale[idx];
         }

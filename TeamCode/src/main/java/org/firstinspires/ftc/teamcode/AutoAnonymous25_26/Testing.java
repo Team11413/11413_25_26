@@ -27,6 +27,7 @@ public class Testing extends OpMode {
     public void init() {
 //        combot = CommonRobot.getCommonRobot(hardwareMap,telemetry);
         ss.init(hardwareMap, telemetry);
+        ss.enabled = true;
         Utils.resetLoopTimer(this::getRuntime);
         continuous = new ParallelActions(true,
                 new AtomicAction((unused)->Utils.resetLoopTimer(this::getRuntime)),
@@ -42,6 +43,9 @@ public class Testing extends OpMode {
     @Override
     public void loop() {
 //        combot.update();
+        if (gamepad1.xWasPressed()) {
+            continuous.addAction(ss.shoot);
+        }
         continuous.run();
     }
 

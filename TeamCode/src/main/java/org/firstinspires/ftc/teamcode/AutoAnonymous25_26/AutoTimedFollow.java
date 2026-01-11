@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.AutoAnonymous25_26;
 
-import android.app.Notification;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.CLUtils.ActionSequence;
@@ -14,9 +12,8 @@ import org.firstinspires.ftc.teamcode.CLUtils.FieldPositions;
 import org.firstinspires.ftc.teamcode.CLUtils.ChassisControl;
 import org.firstinspires.ftc.teamcode.CLUtils.Follower;
 import org.firstinspires.ftc.teamcode.CLUtils.Path;
+import org.firstinspires.ftc.teamcode.CLUtils.RaceActions;
 import org.firstinspires.ftc.teamcode.CLUtils.Utils;
-
-import java.util.function.Supplier;
 
 @Autonomous(name = "Follow Blue Goal", group = "Robot", preselectTeleOp = "Primary")
 public class AutoTimedFollow extends LinearOpMode {
@@ -24,14 +21,22 @@ public class AutoTimedFollow extends LinearOpMode {
     CommonRobot comBot;
     Follower follower;
 
-    private ActionSequence Auto1;
-    private ActionSequence follow;
-    private ActionSequence moveToShootBlue;
-    private ActionSequence shootThree;
+    private AtomicAction Auto1;
+    private AtomicAction follow;
+    private AtomicAction leaveStart;
+    private AtomicAction moveToShootBlue;
+    private AtomicAction Pickupspikeone;
+    private AtomicAction shootThree;
+    private AtomicAction autoAim;
     private Path currentPath;
-    public double speed = 20; //follows the given path at 20 inches per second.
+    private ActionSequence.Wait ShotPrep = new ActionSequence.Wait();
+    public double speed = 110; //follows the given path at 20 inches per second.
 
     public AutoTimedFollow() {
+
+    }
+
+    private void prep() {
         follow = new ActionSequence(
                 new AtomicAction((unused) -> {
                     follower.newPath(currentPath, speed);
@@ -52,16 +57,61 @@ public class AutoTimedFollow extends LinearOpMode {
                             comBot.drive();
                         }
                 ));
-        moveToShootBlue = new ActionSequence(
+        leaveStart = new ActionSequence(
                 new AtomicAction((unused) -> {
-                    currentPath = Path.GeneratePath(comBot.localizer.getPose(), FieldPositions.Pose.BLUEGOALSCORE.get());
+                    currentPath = Path.GeneratePath(comBot.localizer.getPose(), FieldPositions.Pose.BLUEGOALOFFSET.get());
+                    speed = 120;
                 }),
                 follow
         );
-        shootThree = ShooterSystem.instance.shootThree;
-        Auto1 = new ActionSequence(
-                moveToShootBlue,
-                shootThree
+        moveToShootBlue = new ActionSequence(
+                new AtomicAction((unused) -> {
+                    currentPath = Path.GeneratePath(comBot.localizer.getPose(), FieldPositions.Pose.BLUEGOALSCORE.get());
+                    speed = 120;
+                }),
+                follow
+        );
+        autoAim = new AtomicAction(
+                (unused) -> {
+                    comBot.chassisControl.aimAt(comBot.localizer.getPose(), comBot.Goal);
+                    comBot.driveFieldRelative();
+                },
+                () -> false,
+                (unused) -> {
+                    comBot.chassisControl.zero();
+                    comBot.drive();
+                }
+        );
+        Pickupspikeone = new ActionSequence(
+                new AtomicAction((unused) -> {
+                    currentPath = Path.GeneratePath(comBot.localizer.getPose(), FieldPositions.Pose.BLUESPIKE1START.get(), FieldPositions.Pose.BLUESPIKE1END.get());
+                    speed = 100;
+                }),
+                follow
+        );
+
+
+        shootThree = new RaceActions(autoAim, ShooterSystem.instance.shootThree);
+        Auto1 = new RaceActions(
+                new AtomicAction((unused) -> comBot.update(), () -> false),
+                new AtomicAction(
+                        (unused) -> {
+                            comBot.intake.setPower(.5);
+                        },
+                        () -> false,
+                        (unused) -> {
+                            comBot.intake.setPower(0);
+                        }
+                ),
+                new ActionSequence(
+                        leaveStart,
+                        moveToShootBlue,
+                        ShotPrep.setTimer(200),
+                        shootThree,
+                        Pickupspikeone,
+                        moveToShootBlue,
+                        shootThree
+                )
         );
     }
 
@@ -70,6 +120,7 @@ public class AutoTimedFollow extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         CommonRobot.startingPose = FieldPositions.Pose.BLUEGOALSTART.get();
         comBot = CommonRobot.getCommonRobot(hardwareMap, telemetry);
+        comBot.ss.enabled = false;
         comBot.chassisControl.alignment = ChassisControl.AlignmentGrid.FTC;
         comBot.Goal = FieldPositions.Pose.BLUEGOAL.get();
         follower = new Follower(comBot.chassisControl);
@@ -77,9 +128,7 @@ public class AutoTimedFollow extends LinearOpMode {
 
         telemetry.addLine("Wait for paths to finish generating");
         telemetry.update();
-        Path moveToFirstRow = Path.GeneratePath(
-                FieldPositions.Pose.BLUEGOALSTART.get(),
-                FieldPositions.Pose.BLUEGOALSCORE.get());
+        prep();
 
         long waitTime = 0;
 
@@ -87,19 +136,25 @@ public class AutoTimedFollow extends LinearOpMode {
             comBot.localizer.update();
             comBot.update();
 
-            telemetry.addData("Current wait time", waitTime);
-            telemetry.addData("Press A to add wait time", "");
+            telemetry.addLine("Current wait time " + waitTime);
+            telemetry.addLine("Press A to add wait time");
             telemetry.update();
 
             if (gamepad1.aWasPressed()) {
                 waitTime++;
             }
         }
+        telemetry.addLine("exiting init");
+        telemetry.update();
 
         // begin commands
-        sleep(waitTime * 1000);
+//        sleep(waitTime * 1000);
+        Utils.resetLoopTimer(this::getRuntime);
+        comBot.ss.enabled = true;
         while (!isStopRequested() && opModeIsActive()) {
+            Utils.getLoopTime();
             Auto1.run();
+            telemetry.update();
             if (Auto1.isComplete.get()) {
                 break;
             }

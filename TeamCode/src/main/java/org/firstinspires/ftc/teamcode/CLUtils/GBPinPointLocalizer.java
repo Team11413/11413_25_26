@@ -18,7 +18,7 @@ for setup.
 public class GBPinPointLocalizer implements ILocalizer {
 
     public static class Params {
-        public double forwardOdoOffset = -193.2559;//-99.4; // y position of the parallel encoder (in mm)
+        public double forwardOdoOffset = 193.2559;//-99.4; // y position of the parallel encoder (in mm)
         public double strafeOdoOffset = -33.274;//183.5; // x position of the perpendicular encoder (in mm)
     }
 
