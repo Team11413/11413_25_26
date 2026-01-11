@@ -34,7 +34,7 @@ public class ShooterSystem{
      */
     public double[] dScale = new double[]{0+10.5,15+10.5,30+10.5,45+10.5,60+10.5,90+10.5,105+10.5};
     public double[] aScale = new double[]{48,48,49,50,60,65,70};
-    public double[] fScale = new double[]{.55,.56,.57,.58,.59,.60,.61};
+    public double[] fScale = new double[]{.54,.548,.555,.57,.59,.72,.80};
     private double target = 0;
     private double lastError=0;
     public double distanceToGoal = -1;
@@ -46,9 +46,9 @@ public class ShooterSystem{
     private double power = 0;
     public double speedAdjust=0;
     public boolean enabled = false;
-    public double p=0.00135;
+    public double p=0;
     public double i=0;
-    public double d=0.0001;
+    public double d=0;
     private PIDF velPIDF = new PIDF(5,()-> p,()->i,()->d, this::getFeedForward);
     private double averageError=0;
     private double averageRPS=0;
@@ -59,7 +59,7 @@ public class ShooterSystem{
     public ParallelActions launch;
     public ParallelActions reset;
     public ParallelActions quickReset;
-    public RaceActions atSpeed;
+    public AtomicAction atSpeed;
     private ActionSequence.Wait shotTimer = new ActionSequence.Wait();
     private ActionSequence.Wait spinUpTimer = new ActionSequence.Wait();
 
@@ -69,7 +69,7 @@ public class ShooterSystem{
     private int averageindex=0;
     private ShooterSystem(){
         //make this a singleton
-        atSpeed = new RaceActions(new AtomicAction(this::atSpeed), spinUpTimer.setTimer(200));
+        atSpeed = new AtomicAction(this::atSpeed);// new RaceActions(new AtomicAction(this::atSpeed), spinUpTimer.setTimer(200));
         launch= new ParallelActions(false,new AtomicAction(this::shootflipper), shotTimer.setTimer(350));
         reset= new ParallelActions(false, new AtomicAction(this::readyflipper), shotTimer.setTimer(350));
         quickReset= new ParallelActions(false,reset,new AtomicAction(this::atSpeed));
@@ -91,7 +91,8 @@ public class ShooterSystem{
 
     public boolean atSpeed(){
         Log.d("Actions","atSpeed");
-        return Math.abs(averageError)<tRPS*allowedErrorPercent;}
+        return true;//Math.abs(averageError)<tRPS*.1;
+         }
 
     public void setPowers(double power){
         this.power=power;

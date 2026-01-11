@@ -19,7 +19,7 @@ public class FieldPositions {
      */
     public enum Pose{
         CENTER(Utils.PoseInDeg(0,0,0)),
-        BLUEGOAL(Utils.PoseInDeg(-66,-60, -128)),
+        BLUEGOAL(Utils.PoseInDeg(-64,-64, -128)),
         BLUEGOALSTART(Utils.PoseInDeg(-59.19,-47.05,50)),
         BLUEGOALOFFSET(Utils.PoseInDeg(-69,-50,52)),
         BLUEGOALSCORE(Utils.PoseInDeg(-22.41,-17.04,-133)),
@@ -29,22 +29,23 @@ public class FieldPositions {
         BLUESPIKE2END(Utils.PoseInDeg(12,-50,-90)),
         BLUESPIKE3START(Utils.PoseInDeg(36,-28,-90)),
         BLUESPIKE3END(Utils.PoseInDeg(36,-50,-90)),
-        BLUEAUDIENCESTART(Utils.PoseInDeg(67,29,-180)),
-        BLUEPLAYER(Utils.PoseInDeg(66,61,179.7)),
-        REDGOAL(Utils.PoseInDeg(-67,29, 135)),
-        REDGOALSTART(Utils.PoseInDeg(-58,60,135)),
-        REDGOALSCORE(Utils.PoseInDeg(-60,60,135)),
-        REDSPIKE1LINEUP(Utils.PoseInDeg(-24,20,90)),
-        REDSPIKE1START(Utils.PoseInDeg(-24,24,90)),
-        REDSPIKE1END(Utils.PoseInDeg(-24,30,90)),
-        REDSPIKE2LINEUP(Utils.PoseInDeg(0,20,90)),
-        REDSPIKE2START(Utils.PoseInDeg(0,24,90)),
-        REDSPIKE2END(Utils.PoseInDeg(0,30,90)),
-        REDSPIKE3LINEUP(Utils.PoseInDeg(24,20,90)),
-        REDSPIKE3START(Utils.PoseInDeg(24,24,90)),
-        REDSPIKE3END(Utils.PoseInDeg(24,30,90)),
-        REDAUDIENCESTART(Utils.PoseInDeg(63,12,180)),
-        REDPLAYER(Utils.PoseInDeg(72-6.4565,-72+8.819,0));
+        BLUEAUDIENCESTART(Utils.PoseInDeg(67,-27,-180)),
+        BLUEAUDIENCESCORE(Utils.PoseInDeg(65,-29,-180)),
+        BLUEPLAYER(Utils.PoseInDeg(64,61,179.7)),
+        REDGOAL(Utils.PoseInDeg(-62,63, 128)),
+        REDGOALSTART(Utils.PoseInDeg(-59.19,47.05,-50)),
+        REDGOALOFFSET(Utils.PoseInDeg(-69,50,-52)),
+        REDGOALSCORE(Utils.PoseInDeg(-22.41,17.04,133)),
+        REDSPIKE1START(Utils.PoseInDeg(-12,28.61,90)),
+        REDSPIKE1END(Utils.PoseInDeg(-12,50,90)),
+        REDSPIKE2START(Utils.PoseInDeg(12,28,90)),
+        REDSPIKE2END(Utils.PoseInDeg(12,50,90)),
+        REDSPIKE3START(Utils.PoseInDeg(36,28,90)),
+        REDSPIKE3END(Utils.PoseInDeg(36,50,90)),
+        REDAUDIENCESTART(Utils.PoseInDeg(67,29,180)),
+        REDAUDIENCESCORE(Utils.PoseInDeg(65,27,180)),
+        REDPLAYER(Utils.PoseInDeg(64,-61,-179.7));
+
         private final Pose2D pose;
          Pose(Pose2D p){
             pose=p;
