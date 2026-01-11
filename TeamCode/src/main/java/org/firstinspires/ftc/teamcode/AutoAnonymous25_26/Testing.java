@@ -4,15 +4,21 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.CLUtils.AtomicAction;
 import org.firstinspires.ftc.teamcode.CLUtils.ParallelActions;
 import org.firstinspires.ftc.teamcode.CLUtils.Utils;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @TeleOp(name = "Testing", group = "Robot")
 
 public class Testing extends OpMode {
 
     public int index = 0;
+    private int idx=0;
     public double increment = 0.01;
     public ShooterSystem ss = ShooterSystem.instance;
     public CommonRobot combot;
@@ -87,8 +93,15 @@ public class Testing extends OpMode {
             index=0;
             return true;
         }
-
-        telemetry.addLine("Current FF: " + ss.fScale[index]);
+        idx=0;
+        telemetry.addLine("F scale: "+Arrays.stream(ss.fScale).mapToObj((point) -> {
+            String prePost="";
+            if(idx==index){
+                prePost="_";
+            }
+            idx++;
+            return prePost+Utils.DoubleToString(point)+prePost;
+        }).collect(Collectors.joining(" | ")));
         return false;
     }
 

@@ -129,7 +129,7 @@ public class CommonRobot {
                 "y: "+Utils.DoubleToString(chassisControl.strafe)+" | "+
                 "heading: "+Utils.DoubleToString(chassisControl.rotate));
         telemetry.addLine("Coord System: "+chassisControl.alignment.name());
-//        telemetry.addLine(battery.getDeviceName()+": "+Utils.DoubleToString(battery.getVoltage()));
+        telemetry.addLine(battery.getDeviceName()+": "+Utils.DoubleToString(battery.getVoltage()));
     }
 
     public void drive(double forward, double right, double rotate) {

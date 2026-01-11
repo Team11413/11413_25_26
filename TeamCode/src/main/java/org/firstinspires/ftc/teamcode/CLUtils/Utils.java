@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.CLUtils;
 
+import android.util.Log;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -34,11 +36,12 @@ public class Utils {
         double p = scale.length-1;
         for (int i = (int) p-1; i >0; i--) {
             p--;
-            if(target>i){
+            if(target>=scale[i]){
                 p+=(target-scale[i])/(scale[i+1]-scale[i]);
                 break;
             }
         }
+        Log.d("Utils","invScaledLerp returns: "+p);
         return p;
     }
 
@@ -47,20 +50,22 @@ public class Utils {
     and will return the exact scale value if the target is within the tolerance.
      */
     public static double scaledLerp(double t, double[] scale, double tolerance){
+        t=Math.abs(t);
         int idx=(int)t;
-        idx=Math.max(0,idx);
         double dif= t-idx;
         if(idx>=scale.length-1){
-            dif=0;
-            idx=scale.length-1;
+            dif+= idx-scale.length+2;
+            idx=scale.length-2;
         }
-        if(dif<tolerance){
-            return scale[idx];
-        }
-        if(dif>1-tolerance){
-            return scale[idx+1];
-        }
-        return scale[idx]+(scale[idx+1]-scale[idx])*dif;
+//        if(dif<tolerance){
+//            return scale[idx];
+//        }
+//        if(dif>1-tolerance){
+//            return scale[idx+1];
+//        }
+        dif=scale[idx]+(scale[idx+1]-scale[idx])*dif;
+        Log.d("Utils","scaledLerp returns: "+dif);
+        return dif;
     }
 
     public static double dist(Pose2D start, Pose2D end, DistanceUnit unit){
