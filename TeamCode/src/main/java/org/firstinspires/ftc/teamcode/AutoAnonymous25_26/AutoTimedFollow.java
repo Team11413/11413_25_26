@@ -96,7 +96,7 @@ public class AutoTimedFollow extends LinearOpMode {
                 new AtomicAction((unused) -> comBot.update(), () -> false),
                 new AtomicAction(
                         (unused) -> {
-                            comBot.intake.setPower(.5);
+                            comBot.intake.setPower(.7);
                         },
                         () -> false,
                         (unused) -> {

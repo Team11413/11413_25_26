@@ -116,14 +116,14 @@ public class SampleOp extends OpMode {
         }
         double power = 0;
         if (gamepad1.left_bumper) {
-            power = -0.5;
+            power = -0.7;
 //            targetspeed -= .05;
 //            if (targetspeed < 0) {
 //                targetspeed = 0;
 //            }
         }
         if (gamepad1.right_bumper) {
-            power = 0.5;
+            power = 0.7;
 //            targetspeed += .05;
 //            if (targetspeed > 1) {
 //                targetspeed = 1;
