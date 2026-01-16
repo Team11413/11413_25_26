@@ -23,8 +23,8 @@ public class FieldPositions {
         BLUEGOALSTART(Utils.PoseInDeg(-59.19,-47.05,50)),
         BLUEGOALOFFSET(Utils.PoseInDeg(-69,-50,52)),
         BLUEGOALSCORE(Utils.PoseInDeg(-22.41,-17.04,-133)),
-        BLUESPIKE1START(Utils.PoseInDeg(-12,-28.61,-90)),
-        BLUESPIKE1END(Utils.PoseInDeg(-12,-50,-90)),
+        BLUESPIKE1START(Utils.PoseInDeg(-9,-28.61,-90)),
+        BLUESPIKE1END(Utils.PoseInDeg(-9,-58,-90)),
         BLUESPIKE2START(Utils.PoseInDeg(12,-28,-90)),
         BLUESPIKE2END(Utils.PoseInDeg(12,-50,-90)),
         BLUESPIKE3START(Utils.PoseInDeg(36,-28,-90)),
@@ -34,17 +34,21 @@ public class FieldPositions {
         BLUEPLAYER(Utils.PoseInDeg(64,61,179.7)),
         REDGOAL(Utils.PoseInDeg(-62,63, 128)),
         REDGOALSTART(Utils.PoseInDeg(-59.19,47.05,-50)),
-        REDGOALOFFSET(Utils.PoseInDeg(-69,50,-52)),
-        REDGOALSCORE(Utils.PoseInDeg(-22.41,17.04,133)),
+        REDGOALOFFSET(Utils.PoseInDeg(-50,45,-52)),
+        REDGOALSCORE(Utils.PoseInDeg(-22.41,15.04,133)),
         REDSPIKE1START(Utils.PoseInDeg(-12,28.61,90)),
-        REDSPIKE1END(Utils.PoseInDeg(-12,50,90)),
+        REDSPIKE1END(Utils.PoseInDeg(-12,58,90)),
         REDSPIKE2START(Utils.PoseInDeg(12,28,90)),
         REDSPIKE2END(Utils.PoseInDeg(12,50,90)),
         REDSPIKE3START(Utils.PoseInDeg(36,28,90)),
         REDSPIKE3END(Utils.PoseInDeg(36,50,90)),
         REDAUDIENCESTART(Utils.PoseInDeg(67,29,180)),
         REDAUDIENCESCORE(Utils.PoseInDeg(65,27,180)),
-        REDPLAYER(Utils.PoseInDeg(64,-61,-179.7));
+        REDPLAYER(Utils.PoseInDeg(64,-61,-179.7)),
+        BLUEGOALEXIT(Utils.PoseInDeg(0,-29,180)),
+        REDGOALEXIT(Utils.PoseInDeg(0,29,180)),
+        BLUEAUDIENCEEXIT(Utils.PoseInDeg(58,-35,180)),
+        REDAUDIENCEEXIT(Utils.PoseInDeg(58,35,180));
 
         private final Pose2D pose;
          Pose(Pose2D p){

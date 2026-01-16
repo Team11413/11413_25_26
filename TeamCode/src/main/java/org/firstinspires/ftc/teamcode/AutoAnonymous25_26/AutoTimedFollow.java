@@ -30,15 +30,20 @@ public class AutoTimedFollow extends LinearOpMode {
     Pose2D spike2E;
     Pose2D spike3S;
     Pose2D spike3E;
+    Pose2D exitPose;
+    Pose2D offsetPose;
 
 
     private AtomicAction GoalAuto;
+    private AtomicAction AudienceAuto;
     private AtomicAction follow;
     private AtomicAction leaveStart;
     private AtomicAction moveToShootBlue;
     private AtomicAction Pickupspikeone;
     private AtomicAction shootThree;
     private AtomicAction autoAim;
+    private AtomicAction exitZone;
+    private AtomicAction boost;
     private Path currentPath;
     private ActionSequence.Wait ShotPrep = new ActionSequence.Wait();
     public double speed = 110; //follows the given path at 20 inches per second.
@@ -70,7 +75,7 @@ public class AutoTimedFollow extends LinearOpMode {
                 ));
         leaveStart = new ActionSequence(
                 new AtomicAction((unused) -> {
-                    currentPath = Path.GeneratePath(comBot.localizer.getPose(), FieldPositions.Pose.BLUEGOALOFFSET.get());
+                    currentPath = Path.GeneratePath(comBot.localizer.getPose(), exitPose);
                     speed = 120;
                 }),
                 follow
@@ -78,6 +83,13 @@ public class AutoTimedFollow extends LinearOpMode {
         moveToShootBlue = new ActionSequence(
                 new AtomicAction((unused) -> {
                     currentPath = Path.GeneratePath(comBot.localizer.getPose(), scorePose);
+                    speed = 120;
+                }),
+                follow
+        );
+        exitZone=new ActionSequence(
+                new AtomicAction((unused)->{
+                    currentPath = Path.GeneratePath(comBot.localizer.getPose(), exitPose);
                     speed = 120;
                 }),
                 follow
@@ -100,6 +112,14 @@ public class AutoTimedFollow extends LinearOpMode {
                 }),
                 follow
         );
+        boost = new AtomicAction(
+                (unused) -> {
+                    comBot.ss.speedAdjust = .2;
+                },
+                () -> false,
+                (unused) -> {
+                    comBot.ss.speedAdjust = 0;
+                });
 
 
         shootThree = new RaceActions(autoAim, ShooterSystem.instance.shootThree);
@@ -118,11 +138,17 @@ public class AutoTimedFollow extends LinearOpMode {
                         leaveStart,
                         moveToShootBlue,
                         ShotPrep.setTimer(1000),
-                        shootThree,
+                        new RaceActions(shootThree,boost),
                         Pickupspikeone,
                         moveToShootBlue,
-                        shootThree
+                        moveToShootBlue,
+                        shootThree,
+                        leaveStart
                 )
+        );
+        AudienceAuto=new RaceActions(
+                new AtomicAction((unused) -> comBot.update(), () -> false),
+                exitZone
         );
     }
 
@@ -159,16 +185,16 @@ public class AutoTimedFollow extends LinearOpMode {
                 blueSide = false;
             }
 
-            if(blueSide){
-                if(goalSide){
+            if (blueSide) {
+                if (goalSide) {
                     telemetry.addLine("Auto type: Blue Goal");
-                }else{
+                } else {
                     telemetry.addLine("Auto type: Blue Audience");
                 }
-            }else{
-                if(goalSide){
+            } else {
+                if (goalSide) {
                     telemetry.addLine("Auto type: Red Goal");
-                }else{
+                } else {
                     telemetry.addLine("Auto type: Red Audience");
                 }
             }
@@ -184,36 +210,42 @@ public class AutoTimedFollow extends LinearOpMode {
         telemetry.addLine("exiting init");
         telemetry.update();
         if (goalSide) {
-            if(blueSide){
+            if (blueSide) {
                 comBot.localizer.setPose(FieldPositions.Pose.BLUEGOALSTART.get());
                 CommonRobot.startingPose = FieldPositions.Pose.BLUEGOALSTART.get();
-                scorePose=FieldPositions.Pose.BLUEGOALSCORE.get();
-                comBot.Goal=FieldPositions.Pose.BLUEGOAL.get();
-                spike1S=FieldPositions.Pose.BLUESPIKE1START.get();
-                spike1E=FieldPositions.Pose.BLUESPIKE1END.get();
-            }else{
+                scorePose = FieldPositions.Pose.BLUEGOALSCORE.get();
+                comBot.Goal = FieldPositions.Pose.BLUEGOAL.get();
+                spike1S = FieldPositions.Pose.BLUESPIKE1START.get();
+                spike1E = FieldPositions.Pose.BLUESPIKE1END.get();
+                exitPose=FieldPositions.Pose.BLUEGOALEXIT.get();
+                offsetPose=FieldPositions.Pose.BLUEGOALOFFSET.get();
+            } else {
                 comBot.localizer.setPose(FieldPositions.Pose.REDGOALSTART.get());
                 CommonRobot.startingPose = FieldPositions.Pose.BLUEGOALSTART.get();
-                scorePose=FieldPositions.Pose.REDGOALSCORE.get();
-                comBot.Goal=FieldPositions.Pose.REDGOAL.get();
-                spike1S=FieldPositions.Pose.REDSPIKE1START.get();
-                spike1E=FieldPositions.Pose.REDSPIKE1END.get();
+                scorePose = FieldPositions.Pose.REDGOALSCORE.get();
+                comBot.Goal = FieldPositions.Pose.REDGOAL.get();
+                spike1S = FieldPositions.Pose.REDSPIKE1START.get();
+                spike1E = FieldPositions.Pose.REDSPIKE1END.get();
+                exitPose=FieldPositions.Pose.REDGOALEXIT.get();
+                offsetPose=FieldPositions.Pose.REDGOALOFFSET.get();
             }
         } else {
-            if(blueSide){
+            if (blueSide) {
                 comBot.localizer.setPose(FieldPositions.Pose.BLUEAUDIENCESTART.get());
                 CommonRobot.startingPose = FieldPositions.Pose.BLUEGOALSTART.get();
-                scorePose=FieldPositions.Pose.BLUEAUDIENCESCORE.get();
-                comBot.Goal=FieldPositions.Pose.BLUEGOAL.get();
-                spike1S=FieldPositions.Pose.BLUESPIKE1START.get();
-                spike1E=FieldPositions.Pose.BLUESPIKE1END.get();
-            }else{
+                scorePose = FieldPositions.Pose.BLUEAUDIENCESCORE.get();
+                comBot.Goal = FieldPositions.Pose.BLUEGOAL.get();
+                spike1S = FieldPositions.Pose.BLUESPIKE1START.get();
+                spike1E = FieldPositions.Pose.BLUESPIKE1END.get();
+                exitPose=FieldPositions.Pose.BLUEAUDIENCEEXIT.get();
+            } else {
                 comBot.localizer.setPose(FieldPositions.Pose.REDAUDIENCESTART.get());
                 CommonRobot.startingPose = FieldPositions.Pose.BLUEGOALSTART.get();
-                scorePose=FieldPositions.Pose.REDAUDIENCESCORE.get();
-                comBot.Goal=FieldPositions.Pose.REDGOAL.get();
-                spike1S=FieldPositions.Pose.REDSPIKE1START.get();
-                spike1E=FieldPositions.Pose.REDSPIKE1END.get();
+                scorePose = FieldPositions.Pose.REDAUDIENCESCORE.get();
+                comBot.Goal = FieldPositions.Pose.REDGOAL.get();
+                spike1S = FieldPositions.Pose.REDSPIKE1START.get();
+                spike1E = FieldPositions.Pose.REDSPIKE1END.get();
+                exitPose=FieldPositions.Pose.REDAUDIENCEEXIT.get();
             }
         }
 
@@ -224,9 +256,13 @@ public class AutoTimedFollow extends LinearOpMode {
         comBot.ss.enabled = true;
         while (!isStopRequested() && opModeIsActive()) {
             Utils.getLoopTime();
-            GoalAuto.run();
+            if(goalSide){
+                GoalAuto.run();
+            }else{
+                AudienceAuto.run();
+            }
             telemetry.update();
-            if (GoalAuto.isComplete.get()) {
+            if (GoalAuto.isComplete.get()||AudienceAuto.isComplete.get()) {
                 break;
             }
         }

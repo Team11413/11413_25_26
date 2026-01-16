@@ -21,6 +21,8 @@ import org.slf4j.helpers.Util;
 
 public class CommonRobot {
     public static CommonRobot INSTANCE;
+
+    public boolean positionDrive = false;
     public long lastLoop =0;
     public double loopTime=0;
     public VoltageSensor battery;
@@ -29,6 +31,7 @@ public class CommonRobot {
     public ShooterSystem ss;
     public Servo ballRelease;
     public GBPinPointLocalizer localizer;
+    Pose2D targetPose;
 
     public ChassisControl chassisControl=new ChassisControl(180,160,4*Math.PI);
     public double[] centerOfMass=new double[]{6,-1};
@@ -119,6 +122,8 @@ public class CommonRobot {
     public void update(){
         localizer.update();
         startingPose= localizer.getPose();
+//        targetPose=Utils
+
         if(Goal!=null) {
             ss.update(Utils.getLoopTime(), Utils.dist(startingPose, Goal, DistanceUnit.INCH));
         }
@@ -136,10 +141,12 @@ public class CommonRobot {
         // This calculates the power needed for each wheel based on the amount of forward,
         // strafe right, and rotate
 
+//        targetPose=Utils.PoseInDeg(startingPose.getX()+forward,startingPose.getY()+right,startingPose.getHeading()+rotate);
+
         double [] motorPowers = {
                 forward + right  + rotate,//FL
                 forward - right - rotate,//FR
-                forward - right + rotate,//BR
+                forward*2 - right*0 + rotate*2,//BR
                 forward  + right  - rotate//BL
         };
 

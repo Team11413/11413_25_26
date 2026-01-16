@@ -70,8 +70,8 @@ public class ShooterSystem{
     private ShooterSystem(){
         //make this a singleton
         atSpeed = new AtomicAction(this::atSpeed);// new RaceActions(new AtomicAction(this::atSpeed), spinUpTimer.setTimer(200));
-        launch= new ParallelActions(false,new AtomicAction(this::shootflipper), shotTimer.setTimer(350));
-        reset= new ParallelActions(false, new AtomicAction(this::readyflipper), shotTimer.setTimer(350));
+        launch= new ParallelActions(false,new AtomicAction(this::shootflipper), shotTimer.setTimer(550));
+        reset= new ParallelActions(false, new AtomicAction(this::readyflipper), shotTimer.setTimer(450));
         quickReset= new ParallelActions(false,reset,new AtomicAction(this::atSpeed));
         shoot= new ActionSequence(
                 atSpeed,

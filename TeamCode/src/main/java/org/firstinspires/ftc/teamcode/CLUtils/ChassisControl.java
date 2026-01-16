@@ -5,8 +5,10 @@ import android.util.Log;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.AutoAnonymous25_26.CommonRobot;
 
 public class ChassisControl {
+    CommonRobot combot;
     public double forward, strafe, rotate;
     //inches/sec, inches/sec, radians/sec
     //find these values with real world testing
@@ -48,6 +50,7 @@ public class ChassisControl {
         forward=0;
         strafe=0;
         rotate=0;
+        combot= CommonRobot.INSTANCE;
     }
 
     public Pose2D getControlAs(AlignmentGrid ag){

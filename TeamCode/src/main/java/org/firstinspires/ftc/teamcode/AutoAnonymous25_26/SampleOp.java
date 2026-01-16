@@ -60,8 +60,8 @@ public class SampleOp extends OpMode {
                 }),
                 new AtomicAction((unused) -> {
                     Utils.getLoopTime();
-                    comBot.update();
                     checkControls();
+                    comBot.update();
                 },
                         () -> false
                 )
@@ -108,6 +108,11 @@ public class SampleOp extends OpMode {
     }
 
     private void checkControls() {
+        comBot.targetPose=Utils.PoseInDeg(
+                -(gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y)),
+                -(gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y)),
+                (gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x)));
+
         comBot.chassisControl.forward = -(gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y));
         comBot.chassisControl.strafe = (gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x));
         comBot.chassisControl.rotate = (gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x));
@@ -155,10 +160,12 @@ public class SampleOp extends OpMode {
         if (gamepad1.dpadDownWasPressed()) {
             comBot.localizer.setPose(ag == ChassisControl.AlignmentGrid.Red ? FieldPositions.Pose.REDPLAYER.get() : FieldPositions.Pose.BLUEPLAYER.get());
         }
-        if (gamepad2.right_trigger > 0) {
+        if (gamepad2.rightBumperWasReleased()) {
             //spin intake to pull in balls
-        } else if (gamepad2.left_trigger > 0) {
+            comBot.ss.speedAdjust+=.05;
+        } else if (gamepad2.leftBumperWasPressed()) {
             //spin intake to eject balls
+            comBot.ss.speedAdjust-=.05;
         }
     }
 
