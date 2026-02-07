@@ -72,6 +72,15 @@ public class SampleOp extends OpMode {
     }
 
     @Override
+    public void init_loop(){
+        if(gamepad1.leftStickButtonWasPressed()){
+            comBot.maxSpeed= comBot.maxSpeed<1?1:.5;
+        }
+        telemetry.addLine("Press left stick to toggle outreach mode");
+        telemetry.addLine("max speed: "+comBot.maxSpeed);
+    }
+
+    @Override
     public void loop() {
         currentTime = getRuntime();
         continuous.run();

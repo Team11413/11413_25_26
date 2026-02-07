@@ -32,6 +32,8 @@ public class CommonRobot {
     public Servo ballRelease;
     public GBPinPointLocalizer localizer;
     Pose2D targetPose;
+    public double maxSpeed = 1.0;  // make this slower for outreaches
+
 
     public ChassisControl chassisControl=new ChassisControl(180,160,4*Math.PI);
     public double[] centerOfMass=new double[]{6,-1};
@@ -151,7 +153,6 @@ public class CommonRobot {
         };
 
         double maxPower = 1.0;
-        double maxSpeed = 1.0;  // make this slower for outreaches
 
         // This is needed to make sure we don't pass > 1.0 to any wheel
         // It allows us to keep all of the motors in proportion to what they should
