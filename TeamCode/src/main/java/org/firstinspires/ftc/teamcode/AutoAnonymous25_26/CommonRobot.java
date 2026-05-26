@@ -148,7 +148,7 @@ public class CommonRobot {
         double [] motorPowers = {
                 forward + right  + rotate,//FL
                 forward - right - rotate,//FR
-                forward*2 - right*0 + rotate*2,//BR
+                forward - right + rotate,//BR
                 forward  + right  - rotate//BL
         };
 
